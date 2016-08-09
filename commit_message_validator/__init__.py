@@ -25,7 +25,7 @@ from __future__ import print_function
 import re
 import subprocess
 
-__version__ = '0.2.0-alpha'
+__version__ = '0.2.0'
 
 
 def line_errors(lineno, line):
