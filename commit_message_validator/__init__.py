@@ -172,14 +172,19 @@ def check_message(lines):
     return 0
 
 
+def check_output(args):
+    """Wrapper around subprocess to handle Python 3"""
+    return subprocess.check_output(args).decode()
+
+
 def main():
     """Validate the current HEAD commit message."""
-    commit = subprocess.check_output(
+    commit = check_output(
         ['git', 'log', '--format=%B', '--no-color', '-n1'])
     # Is this reliable enough? Probably.
     if commit.startswith('Merge "'):
         # Merge commit, find the actual commit:
-        merge_info = subprocess.check_output(
+        merge_info = check_output(
             ['git', 'log', '--no-color', '-n1']
         )
         for line in merge_info.splitlines():
@@ -187,7 +192,7 @@ def main():
                 # Example: "Merge: 1fe8271 818c6e4"
                 # We want the right-most commit
                 commit_id = line.split(' ')[-1]
-                commit = subprocess.check_output(
+                commit = check_output(
                     ['git', 'log', '--format=%B', '--no-color',
                      '-n1', commit_id]
                 )
