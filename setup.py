@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 from setuptools import setup
 
+from commit_message_validator import __version__
+
 setup(
     name='commit-message-validator',
-    version='0.1.0',
+    version=__version__,
     author='Bryan Davis',
     author_email='bd808@wikimedia.org',
     url='https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines',
