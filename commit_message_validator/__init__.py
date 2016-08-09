@@ -159,10 +159,16 @@ def check_message(lines):
             errors.append(
                 "Line %d: Unexpected line after Change-Id" % last_lineno)
 
+    print('commit-message-validator v%s' % __version__)
     if errors:
+        print('The following errors were found:')
         for e in errors:
             print(e)
+        print('Please review <https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines>'
+              ' and update your commit message accordingly')
         return 1
+    else:
+        print('Commit message is formatted properly! Keep up the good work!')
     return 0
 
 

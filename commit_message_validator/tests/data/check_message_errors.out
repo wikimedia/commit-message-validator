@@ -1,3 +1,5 @@
+commit-message-validator v%version%
+The following errors were found:
 Line 1: First line should be <=80 characters
 Line 2: Second line should be empty
 Line 3: Line should be <=100 characters
@@ -19,3 +21,4 @@ Line 13: Unexpected blank line after Bug:
 Line 14: The phabricator task ID must use uppercase T
 Line 15: Extra Change-Id found, next at 16
 Line 17: Unexpected line after Change-Id
+Please review <https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines> and update your commit message accordingly

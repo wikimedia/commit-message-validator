@@ -24,7 +24,7 @@ class MetaValidator(type):
     """
 
     def __new__(cls, name, bases, dct):
-        def create_test_method(msg, expected):
+        def create_test_method(msg, expected, expected_exit_code):
             def test(self):
                 saved_stdout = sys.stdout
                 try:
@@ -32,7 +32,7 @@ class MetaValidator(type):
                     sys.stdout = out
                     exit_code = cmv.check_message(msg.splitlines())
                     self.assertEqual(expected, out.getvalue())
-                    self.assertEqual(exit_code, 1 if expected else 0)
+                    self.assertEqual(exit_code, expected_exit_code)
                 finally:
                     sys.stdout = saved_stdout
             return test
@@ -43,10 +43,12 @@ class MetaValidator(type):
             test, _, extension = fn.rpartition('.')
             fn = os.path.join(base_path, test)
             if extension == 'msg' and os.path.isfile(fn + '.out'):
+                exit_code = 0 if fn.endswith('ok') else 1
                 with open(fn + '.msg') as msg:
                     with open(fn + '.out') as out:
+                        out_text = out.read().replace('%version%', cmv.__version__)
                         dct['test_' + test] = create_test_method(
-                            msg.read(), out.read())
+                            msg.read(), out_text, exit_code)
         return super(MetaValidator, cls).__new__(cls, name, bases, dct)
 
 
