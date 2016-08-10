@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+from six import with_metaclass
 import sys
 import unittest
 
@@ -52,11 +53,11 @@ class MetaValidator(type):
         return super(MetaValidator, cls).__new__(cls, name, bases, dct)
 
 
-class TestCommitMessageValidator(unittest.TestCase):
+class TestCommitMessageValidator(with_metaclass(MetaValidator, unittest.TestCase)):
 
     """Validate the commit messages using test files."""
 
-    __metaclass__ = MetaValidator
+    pass
 
 
 if __name__ == '__main__':
