@@ -25,7 +25,7 @@ from __future__ import print_function
 import re
 import subprocess
 
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 
 
 def line_errors(lineno, line):
@@ -179,25 +179,19 @@ def check_output(args):
 
 def main():
     """Validate the current HEAD commit message."""
+    # First, we need to check if HEAD is a merge commit
+    # We do this by telling if it has multiple parents
+    parents = check_output(
+        ['git', 'log', '--format=%P', 'HEAD', '-n1']
+    ).strip().split(' ')
+    if len(parents) > 1:
+        # Use the right-most parent
+        commit_id = parents[-1]
+    else:
+        commit_id = 'HEAD'
+
     commit = check_output(
-        ['git', 'log', '--format=%B', '--no-color', '-n1'])
-    # Is this reliable enough? Probably.
-    if commit.startswith('Merge "'):
-        # Merge commit, find the actual commit:
-        merge_info = check_output(
-            ['git', 'log', '--no-color', '-n1']
-        )
-        for line in merge_info.splitlines():
-            if line.startswith('Merge:'):
-                # Example: "Merge: 1fe8271 818c6e4"
-                # We want the right-most commit
-                commit_id = line.split(' ')[-1]
-                commit = check_output(
-                    ['git', 'log', '--format=%B', '--no-color',
-                     '-n1', commit_id]
-                )
-                # And if we don't find the Merge header,
-                # we'll fall back to the merge commit.
+        ['git', 'log', '--format=%B', '--no-color', commit_id, '-n1'])
     # last line is always an empty line
     lines = commit.splitlines()[:-1]
 
