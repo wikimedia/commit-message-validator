@@ -1,0 +1,7 @@
+commit-message-validator validates the format of a commit message to Wikimedia
+Gerrit standards. It requires Python 3.3+ or 2.7.
+
+Please see <https://www.mediawiki.org/wiki/commit-message-validator> for more
+details.
+
+Licensed as GPLv2+, please see COPYING for the full license.
