@@ -11,8 +11,13 @@ Bug: T11
 Bug: T12
 Bug: t13
 
+Depends-On: I1234
+
 Bug: t14
+Depends-On: I5678
 Change-Id: I1234567890abcdef123456
 Change-Id: I1234567890abcdef123457
+Depends-On: I9abc
+
 Foo bar
 (cherry picked from commit 7ad8cc24d0672111cff5beddcfc9d778a1a3478e)

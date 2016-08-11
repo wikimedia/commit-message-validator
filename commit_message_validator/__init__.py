@@ -38,6 +38,9 @@ def line_errors(lineno, line):
     - "Bug:" is capitalized
     - "Bug:" is followed by a space
     - Exactly one task id on each Bug: line
+    - "Depends-On:" is capitalized
+    - "Depends-On:" is followed by a space
+    - Exactly one change id on each Depends-On: line
     - No "Task: ", "Fixes: ", "Closes: " lines
     """
     # First line <=80
@@ -82,6 +85,29 @@ def line_errors(lineno, line):
         else:
             yield "The bug ID is not a phabricator task ID"
 
+    m = re.match(r'^(depends-on):(\W)*(.*)', line, re.IGNORECASE)
+    if m:
+        if lineno == 0:
+            yield "Do not define dependency in the header"
+
+        if m.group(1) != 'Depends-On':
+            yield "Expected 'Depends-On' not '%s:'" % m.group(1)
+
+        if m.group(2) != ' ':
+            yield "Expected one space after 'Depends-On:'"
+
+        change_id = m.group(3).strip()
+        change_id_is_hex = True
+        try:
+            int(change_id[1:], 16)
+        except ValueError:
+            change_id_is_hex = False
+        if change_id.upper().startswith('I') and change_id_is_hex:
+            if change_id[0] != 'I':
+                yield "The Depends-On value must use uppercase I"
+        else:
+            yield "The Depends-On value is not a Gerrit Change-Id"
+
 
 def check_message(lines):
     """Check a commit message to see if it has errors.
@@ -90,9 +116,11 @@ def check_message(lines):
     - All lines ok as checked by line_errors()
     - For any "^Bug: " line, next line is not blank
     - For any "^Bug: " line, prior line is another Bug: line or empty
+    - For any "^Depends-On: " line, next line is not blank
+    - For any "^Depends-On: " line, prior line is Bug|Depends-On or empty
     - Exactly one "Change-Id: " line per commit
-    - For "Change-Id: " line, prior line is empty or "^Bug: "
-    - No blank lines between any "Bug: " lines and "Change-Id: "
+    - For "Change-Id: " line, prior line is empty or "^(Bug|Depends-On): "
+    - No blank lines between any "(Bug|Depends-On): " lines and "Change-Id: "
     - Only "(cherry picked from commit" can follow "Change-Id: "
     - Message has at least 3 lines (subject, blank, Change-Id)
     """
@@ -101,6 +129,7 @@ def check_message(lines):
     last_line = ''
     changeid_line = False
     last_bug = False
+    last_depends = False
     for lineno, line in enumerate(lines):
         rline = lineno + 1
         errors.extend('Line {0}: {1}'.format(rline, e)
@@ -112,12 +141,28 @@ def check_message(lines):
                 errors.append(
                     "Line %d: Unexpected blank line after Bug:" % rline)
 
+        # For any "Depends-On: " line, next line is not blank
+        if last_depends == last_lineno:
+            if not line:
+                errors.append(
+                    "Line %d: Unexpected blank line after Depends-On:" % rline)
+
         # For any "Bug: " line, prior line is another Bug: line or empty
         if line.startswith('Bug: '):
             last_bug = rline
             if last_line and not last_line.startswith('Bug: '):
                 errors.append(
                     "Line %d: Expected blank line before Bug:" % rline)
+
+        # For any "Depends-On: " line, prior line is Bug, Depends-On, or empty
+        if line.startswith('Depends-On: '):
+            last_depends = rline
+            if last_line and not (
+                last_line.startswith('Bug: ') or
+                last_line.startswith('Depends-On: ')
+            ):
+                errors.append(
+                    "Line %d: Expected blank line before Depends-On:" % rline)
 
         if line.startswith('Change-Id: I'):
             # Only expect one "Change-Id: " line
@@ -127,17 +172,25 @@ def check_message(lines):
                     (changeid_line, rline))
 
             # For "Change-Id: " line, prior line is empty or Bug:
-            elif last_line and not last_line.startswith('Bug: '):
+            elif last_line and not (
+                last_line.startswith('Bug: ') or
+                last_line.startswith('Depends-On: ')
+            ):
                 errors.append(
-                    "Line %d: Expected blank line or Bug: before Change-Id:" %
-                    rline)
+                    "Line %d: Expected blank line, Bug:, "
+                    "or Depends-On: before Change-Id:" % rline)
 
-            # If we have Bug: lines, Change-Id follows immediately
-            elif last_bug and last_bug != rline - 1:
-                for lno in range(last_bug + 1, rline):
+            # If we have Bug|Depends-On: lines, Change-Id follows immediately
+            elif last_bug or last_depends and (
+                max(last_bug, last_depends) != rline - 1
+            ):
+                lookback = max(last_bug, last_depends)
+                label = "Bug:" if lookback == last_bug else "Depends-On:"
+
+                for lno in range(lookback + 1, rline):
                     errors.append(
-                        "Line %d: Unexpected line between Bug: and Change-Id:"
-                        % lno)
+                        "Line %d: Unexpected line between %s and Change-Id:"
+                        % (lno, label))
 
             changeid_line = rline
 

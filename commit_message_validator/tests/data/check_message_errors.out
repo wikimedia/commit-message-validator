@@ -18,7 +18,12 @@ Line 8: Expected blank line before Bug:
 Line 9: Unexpected blank line after Bug:
 Line 12: The phabricator task ID must use uppercase T
 Line 13: Unexpected blank line after Bug:
-Line 14: The phabricator task ID must use uppercase T
-Line 15: Extra Change-Id found, next at 16
-Line 17: Unexpected line after Change-Id
+Line 15: Unexpected blank line after Depends-On:
+Line 16: The phabricator task ID must use uppercase T
+Line 18: Extra Change-Id found, next at 19
+Line 20: Expected blank line before Depends-On:
+Line 21: Unexpected blank line after Depends-On:
+Line 20: Unexpected line after Change-Id
+Line 21: Unexpected line after Change-Id
+Line 22: Unexpected line after Change-Id
 Please review <https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines> and update your commit message accordingly
