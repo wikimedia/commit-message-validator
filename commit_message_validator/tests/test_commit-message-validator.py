@@ -22,6 +22,8 @@ class MetaValidator(type):
     file pairs where there is a `.msg` and `.out` file. If both exist it'll
     create a test for this pair where the `.msg` is the commit message and the
     `.out` is the expected output.
+
+    Filenames for tests that will pass validation must end with 'ok'.
     """
 
     def __new__(cls, name, bases, dct):
@@ -54,9 +56,7 @@ class MetaValidator(type):
 
 
 class TestCommitMessageValidator(with_metaclass(MetaValidator, unittest.TestCase)):
-
     """Validate the commit messages using test files."""
-
     pass
 
 

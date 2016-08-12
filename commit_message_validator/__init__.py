@@ -34,7 +34,7 @@ def line_errors(lineno, line):
     Checks:
     - First line <=80 characters
     - Second line blank
-    - No line >100 characters
+    - No line >100 characters (unless it is only a URL)
     - "Bug:" is capitalized
     - "Bug:" is followed by a space
     - Exactly one task id on each Bug: line
@@ -56,9 +56,11 @@ def line_errors(lineno, line):
         if line:
             yield "Second line should be empty"
 
-    # No line >100
+    # No line >100 unless it is all a URL
     elif len(line) > 100:
-        yield "Line should be <=100 characters"
+        m = re.match(r'^<?https?://\S+>?$', line, re.IGNORECASE)
+        if not m:
+            yield "Line should be <=100 characters"
 
     m = re.match(r'^(bug|closes|fixes|task):(\W)*(.*)', line, re.IGNORECASE)
     if m:

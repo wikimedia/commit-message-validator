@@ -9,7 +9,7 @@ URL that is embedded in the message.
 Other checks:
 - First line <=80 characters
 - Second line blank
-- No line >100 characters
+- No line >100 characters unless it is a URL
 - "Bug:" is capitalized
 - "Bug:" is followed by a space
 - Exactly one task id on each Bug: line
