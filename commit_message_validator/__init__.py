@@ -22,10 +22,63 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 from __future__ import print_function
+
 import re
 import subprocess
+import sys
 
 __version__ = '0.3.1'
+
+RE_BUGID = re.compile('^T[0-9]+$')
+RE_CHANGEID = re.compile('^I[a-f0-9]{40}$')
+RE_SUBJECT_BUG_OR_TASK = re.compile(r'^(bug|T?\d+)', re.IGNORECASE)
+RE_URL = re.compile(r'^<?https?://\S+>?$', re.IGNORECASE)
+RE_FOOTER = re.compile(
+    r'^(?P<name>[a-z]\S+):(?P<ws>\s*)(?P<value>.*)$', re.IGNORECASE)
+RE_CHERRYPICK = re.compile(r'^\(cherry picked from commit [0-9a-fA-F]{40}\)$')
+
+# Header-like lines that we are interested in validating
+FOOTERS = [
+    'acked-by',
+    'bug',
+    'cc',
+    'change-id',
+    'closes',
+    'co-authored-by',
+    'depends-on',
+    'fixes',
+    'reported-by',
+    'reviewed-by',
+    'signed-off-by',
+    'suggested-by',
+    'task',
+    'tested-by',
+    'thanks',
+]
+
+BEFORE_CHANGE_ID = [
+    'bug',
+    'closes',
+    'depends-on',
+    'fixes',
+    'task',
+]
+
+# Invalid footer name to expected name mapping
+BAD_FOOTERS = {
+    'closes': 'bug',
+    'fixes': 'bug',
+    'task': 'bug',
+}
+
+
+def is_valid_bug_id(s):
+    return RE_BUGID.match(s)
+
+
+def is_valid_change_id(s):
+    """A Gerrit change id is a 40 character hex string prefixed with 'I'."""
+    return RE_CHANGEID.match(s)
 
 
 def line_errors(lineno, line):
@@ -35,19 +88,17 @@ def line_errors(lineno, line):
     - First line <=80 characters
     - Second line blank
     - No line >100 characters (unless it is only a URL)
-    - "Bug:" is capitalized
-    - "Bug:" is followed by a space
-    - Exactly one task id on each Bug: line
-    - "Depends-On:" is capitalized
-    - "Depends-On:" is followed by a space
-    - Exactly one change id on each Depends-On: line
+    - Footer lines ("Foo: ...") are capitalized and have a space after the ':'
+    - "Bug: " is followed by one task id ("Tnnnn")
+    - "Depends-On:" is followed by one change id ("I...")
+    - "Change-Id:" is followed one change id ("I...")
     - No "Task: ", "Fixes: ", "Closes: " lines
     """
     # First line <=80
     if lineno == 0:
         if len(line) > 80:
             yield "First line should be <=80 characters"
-        m = re.match(r'^T?\d+', line, re.IGNORECASE)
+        m = RE_SUBJECT_BUG_OR_TASK.match(line)
         if m:
             yield "Do not define bug in the header"
 
@@ -57,51 +108,48 @@ def line_errors(lineno, line):
             yield "Second line should be empty"
 
     # No line >100 unless it is all a URL
-    elif len(line) > 100:
-        m = re.match(r'^<?https?://\S+>?$', line, re.IGNORECASE)
-        if not m:
-            yield "Line should be <=100 characters"
+    if len(line) > 100 and not RE_URL.match(line):
+        yield "Line should be <=100 characters"
 
-    m = re.match(r'^(bug|closes|fixes|task):(\W)*(.*)', line, re.IGNORECASE)
+    # Look for and validate footer lines
+    m = RE_FOOTER.match(line)
     if m:
-        if lineno == 0:
-            yield "Do not define bug in the header"
+        name = m.group('name')
+        normalized_name = name.lower()
+        ws = m.group('ws')
+        value = m.group('value')
 
-        if m.group(1).lower() == 'bug':
-            if m.group(1) != 'Bug':
-                yield "Expected 'Bug:' not '%s:'" % m.group(1)
-        else:
-            # No "Task: ", "Fixes: ", "Closes: " lines
-            yield "Use 'Bug: ' not '%s:'" % m.group(1)
+        if normalized_name not in FOOTERS:
+            # Meh. Not a name we care about
+            raise StopIteration
 
-        if m.group(2) != ' ':
-            yield "Expected one space after 'Bug:'"
+        if normalized_name in BAD_FOOTERS:
+            # Treat as the correct name for the rest of the rules
+            normalized_name = BAD_FOOTERS[normalized_name]
 
-        bug_id = m.group(3).strip()
-        if bug_id.isdigit():
-            yield "The bug ID must be a phabricator task ID"
-        elif bug_id.upper().startswith('T') and bug_id[1:].isdigit():
-            if bug_id[0] != 'T':
-                assert bug_id[0] == 't'
-                yield "The phabricator task ID must use uppercase T"
-        else:
-            yield "The bug ID is not a phabricator task ID"
+        if normalized_name == 'bug':
+            if name != 'Bug':
+                yield "Use 'Bug:' not '{0}:'".format(name)
+            if not is_valid_bug_id(value):
+                yield "Bug: value must be a single phabricator task ID"
 
-    m = re.match(r'^(depends-on):(\W)*(.*)', line, re.IGNORECASE)
-    if m:
-        if lineno == 0:
-            yield "Do not define dependency in the header"
+        elif normalized_name == 'depends-on':
+            if name != 'Depends-On':
+                yield "Use 'Depends-On:' not '%s:'" % name
+            if not is_valid_change_id(value):
+                yield "Depends-On: value must be a single Gerrit change id"
 
-        if m.group(1) != 'Depends-On':
-            yield "Expected 'Depends-On' not '%s:'" % m.group(1)
+        elif normalized_name == 'change-id':
+            if name != 'Change-Id':
+                yield "Use 'Change-Id:' not '%s:'" % name
+            if not is_valid_change_id(value):
+                yield "Change-Id: value must be a single Gerrit change id"
 
-        if m.group(2) != ' ':
-            yield "Expected one space after 'Depends-On:'"
+        elif name[0].upper() != name[0]:
+            yield "'%s:' must start with a capital letter" % name
 
-
-def is_valid_change_id(s):
-    """A Gerrit change id is a 40 character hex string prefixed with 'I'."""
-    return re.match('^I[a-f0-9]{40}$', s)
+        if ws != ' ':
+            yield "Expected one space after '%s:'" % name
 
 
 def check_message(lines):
@@ -109,99 +157,65 @@ def check_message(lines):
 
     Checks:
     - All lines ok as checked by line_errors()
-    - For any "^Bug: " line, next line is not blank
-    - For any "^Bug: " line, prior line is another Bug: line or empty
-    - For any "^Depends-On: " line, next line is not blank
-    - For any "^Depends-On: " line, prior line is Bug|Depends-On or empty
-    - For any "^Depends-On: " line, the RHS is a valid change id
-    - Exactly one "Change-Id: " line per commit
-    - For "Change-Id: " line, prior line is empty or "^(Bug|Depends-On): "
-    - For "Change-Id: " line, the RHS is a valid change id
-    - No blank lines between any "(Bug|Depends-On): " lines and "Change-Id: "
-    - Only "(cherry picked from commit" can follow "Change-Id: "
     - Message has at least 3 lines (subject, blank, Change-Id)
+    - For any footer line, next line is not blank
+    - For any footer line, prior line is another footer line or blank
+    - Exactly one "Change-Id: " line per commit
+    - Any "Bug:" and "Depends-On:" lines come before "Change-Id:"
+    - "(cherry picked from commit ...)" is last line in footer if present
     """
     errors = []
     last_lineno = 0
     last_line = ''
     changeid_line = False
-    last_bug = False
-    last_depends = False
+    cherrypick_line = False
+    in_footer = False
+
     for lineno, line in enumerate(lines):
         rline = lineno + 1
         errors.extend('Line {0}: {1}'.format(rline, e)
                       for e in line_errors(lineno, line))
 
-        # For any "Bug: " line, next line is not blank
-        if last_bug == last_lineno:
-            if not line:
+        if in_footer:
+            if line == '':
                 errors.append(
-                    "Line %d: Unexpected blank line after Bug:" % rline)
+                    "Line {0}: Unexpected blank line".format(rline))
+            elif not (RE_FOOTER.match(line) or RE_CHERRYPICK.match(line)):
+                errors.append((
+                    "Line {0}: Expected footer line to follow format of "
+                    "'Name: ...'").format(rline))
 
-        # For any "Depends-On: " line, next line is not blank
-        if last_depends == last_lineno:
-            if not line:
+        m = RE_FOOTER.match(line)
+        if m:
+            name = m.group('name')
+            normalized_name = name.lower()
+
+            if last_line == '' and normalized_name in FOOTERS:
+                # The first footer after a blank line starts the footer
+                in_footer = True
+
+            if normalized_name in FOOTERS and not in_footer:
                 errors.append(
-                    "Line %d: Unexpected blank line after Depends-On:" % rline)
+                    "Line {0}: Expected '{1}:' to be in footer".format(
+                        rline, name))
 
-        # For any "Bug: " line, prior line is another Bug: line or empty
-        if line.startswith('Bug: '):
-            last_bug = rline
-            if last_line and not last_line.startswith('Bug: '):
-                errors.append(
-                    "Line %d: Expected blank line before Bug:" % rline)
-
-        # For any "Depends-On: " line, prior line is Bug, Depends-On, or empty
-        if line.startswith('Depends-On: '):
-            last_depends = rline
-            if last_line and not (
-                last_line.startswith('Bug: ') or
-                last_line.startswith('Depends-On: ')
-            ):
-                errors.append(
-                    "Line %d: Expected blank line before Depends-On:" % rline)
-
-            (label, rhs) = line.split(' ', 1)
-            if not is_valid_change_id(rhs):
-                errors.append(
-                    "Line %d: value must be a single valid Gerrit change id"
-                    % rline)
-
-        if line.startswith('Change-Id:'):
-            # Only expect one "Change-Id: " line
-            if changeid_line is not False:
-                errors.append(
-                    "Line %d: Extra Change-Id found, next at %d" %
-                    (changeid_line, rline))
-
-            # For "Change-Id: " line, prior line is empty or Bug:
-            elif last_line and not (
-                last_line.startswith('Bug: ') or
-                last_line.startswith('Depends-On: ')
-            ):
-                errors.append(
-                    "Line %d: Expected blank line, Bug:, "
-                    "or Depends-On: before Change-Id:" % rline)
-
-            # If we have Bug|Depends-On: lines, Change-Id follows immediately
-            elif last_bug or last_depends and (
-                max(last_bug, last_depends) != rline - 1
-            ):
-                lookback = max(last_bug, last_depends)
-                label = "Bug:" if lookback == last_bug else "Depends-On:"
-
-                for lno in range(lookback + 1, rline):
+            if normalized_name == 'change-id':
+                # Only expect one "Change-Id: " line
+                if changeid_line is not False:
                     errors.append(
-                        "Line %d: Unexpected line between %s and Change-Id:"
-                        % (lno, label))
+                        "Line {0}: Extra Change-Id found, first at {1}".format(
+                            rline, changeid_line))
+                changeid_line = rline
 
-            changeid_line = rline
+            elif normalized_name in BEFORE_CHANGE_ID:
+                if changeid_line is not False:
+                    errors.append((
+                        "Line {0}: Expected '{1}:' to come before "
+                        "Change-Id on line {2}").format(
+                            rline, name, changeid_line))
 
-            (label, rhs) = line.split(' ', 1)
-            if not is_valid_change_id(rhs):
-                errors.append(
-                    "Line %d: value must be a single valid Gerrit change id"
-                    % rline)
+        elif RE_CHERRYPICK.match(line):
+            cherrypick_line = rline
 
         last_lineno = rline
         last_line = line
@@ -212,22 +226,20 @@ def check_message(lines):
     if changeid_line is False:
         errors.append("Line %d: Expected Change-Id" % last_lineno)
 
-    elif changeid_line != last_lineno:
-        if last_lineno != changeid_line + 1:
-            for lno in range(changeid_line + 1, last_lineno):
-                errors.append(
-                    "Line %d: Unexpected line after Change-Id" % lno)
-        if not last_line.startswith("(cherry picked from commit"):
-            errors.append(
-                "Line %d: Unexpected line after Change-Id" % last_lineno)
+    if cherrypick_line and cherrypick_line != last_lineno:
+        errors.append(
+            "Line {0}: Cherry pick expected to be last line".format(
+                cherrypick_line))
 
     print('commit-message-validator v%s' % __version__)
     if errors:
         print('The following errors were found:')
         for e in errors:
             print(e)
-        print('Please review <https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines>'
-              ' and update your commit message accordingly')
+        print(
+            'Please review '
+            '<https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines>'
+            '\nand update your commit message accordingly')
         return 1
     else:
         print('Commit message is formatted properly! Keep up the good work!')
@@ -260,5 +272,4 @@ def main():
     return check_message(lines)
 
 if __name__ == '__main__':
-    import sys
     sys.exit(main())

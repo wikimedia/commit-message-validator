@@ -3,28 +3,30 @@ The following errors were found:
 Line 1: First line should be <=80 characters
 Line 2: Second line should be empty
 Line 3: Line should be <=100 characters
-Line 4: Use 'Bug: ' not 'Fixes:'
-Line 4: Expected one space after 'Bug:'
-Line 4: The bug ID is not a phabricator task ID
-Line 5: Use 'Bug: ' not 'Closes:'
-Line 5: Expected one space after 'Bug:'
-Line 5: The bug ID is not a phabricator task ID
-Line 6: Use 'Bug: ' not 'Task:'
-Line 7: Expected 'Bug:' not 'BUG:'
-Line 7: Expected one space after 'Bug:'
-Line 7: The bug ID must be a phabricator task ID
-Line 8: The bug ID is not a phabricator task ID
-Line 8: Expected blank line before Bug:
-Line 9: Unexpected blank line after Bug:
-Line 12: The phabricator task ID must use uppercase T
-Line 13: Unexpected blank line after Bug:
-Line 15: Unexpected blank line after Depends-On:
-Line 16: The phabricator task ID must use uppercase T
-Line 18: Extra Change-Id found, next at 19
-Line 20: Expected blank line before Depends-On:
-Line 20: value must be a single valid Gerrit change id
-Line 21: Unexpected blank line after Depends-On:
-Line 20: Unexpected line after Change-Id
-Line 21: Unexpected line after Change-Id
-Line 22: Unexpected line after Change-Id
-Please review <https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines> and update your commit message accordingly
+Line 4: Use 'Bug:' not 'Fixes:'
+Line 4: Bug: value must be a single phabricator task ID
+Line 4: Expected one space after 'Fixes:'
+Line 4: Expected 'Fixes:' to be in footer
+Line 5: Use 'Bug:' not 'Closes:'
+Line 5: Bug: value must be a single phabricator task ID
+Line 5: Expected one space after 'Closes:'
+Line 5: Expected 'Closes:' to be in footer
+Line 6: Use 'Bug:' not 'Task:'
+Line 6: Expected 'Task:' to be in footer
+Line 7: Use 'Bug:' not 'BUG:'
+Line 7: Bug: value must be a single phabricator task ID
+Line 7: Expected one space after 'BUG:'
+Line 7: Expected 'BUG:' to be in footer
+Line 8: Bug: value must be a single phabricator task ID
+Line 8: Expected 'Bug:' to be in footer
+Line 12: Bug: value must be a single phabricator task ID
+Line 13: Unexpected blank line
+Line 15: Unexpected blank line
+Line 16: Bug: value must be a single phabricator task ID
+Line 19: Extra Change-Id found, first at 18
+Line 20: Depends-On: value must be a single Gerrit change id
+Line 20: Expected 'Depends-On:' to come before Change-Id on line 19
+Line 21: Unexpected blank line
+Line 22: Expected footer line to follow format of 'Name: ...'
+Please review <https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines>
+and update your commit message accordingly
