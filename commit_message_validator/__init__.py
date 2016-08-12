@@ -251,18 +251,18 @@ def check_output(args):
     return subprocess.check_output(args).decode()
 
 
-def main():
+def main(commit_id='HEAD'):
     """Validate the current HEAD commit message."""
     # First, we need to check if HEAD is a merge commit
     # We do this by telling if it has multiple parents
     parents = check_output(
-        ['git', 'log', '--format=%P', 'HEAD', '-n1']
+        ['git', 'log', '--format=%P', commit_id, '-n1']
     ).strip().split(' ')
     if len(parents) > 1:
         # Use the right-most parent
         commit_id = parents[-1]
     else:
-        commit_id = 'HEAD'
+        commit_id = commit_id
 
     commit = check_output(
         ['git', 'log', '--format=%B', '--no-color', commit_id, '-n1'])
