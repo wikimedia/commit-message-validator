@@ -1,0 +1,4 @@
+commit-message-validator v%version%
+The following errors were found:
+Line 3: value must be a single valid Gerrit change id
+Please review <https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines> and update your commit message accordingly

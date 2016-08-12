@@ -21,8 +21,10 @@ Other checks:
 - For any "^Bug: " line, prior line is another Bug: line or empty
 - For any "^Depends-On: " line, next line is not blank
 - For any "^Depends-On: " line, prior line is Bug|Depends-On or empty
+- For any "^Depends-On: " line, the RHS is a valid change id
 - Exactly one "Change-Id: " line per commit
 - For "Change-Id: " line, prior line is empty or "^(Bug|Depends-On): "
+- For "Change-Id: " line, the RHS is a valid change id
 - No blank lines between any "(Bug|Depends-On): " lines and "Change-Id: "
 - Only "(cherry picked from commit" can follow "Change-Id: "
 - Message has at least 3 lines (subject, blank, Change-Id)

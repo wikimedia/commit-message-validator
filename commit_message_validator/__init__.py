@@ -98,17 +98,10 @@ def line_errors(lineno, line):
         if m.group(2) != ' ':
             yield "Expected one space after 'Depends-On:'"
 
-        change_id = m.group(3).strip()
-        change_id_is_hex = True
-        try:
-            int(change_id[1:], 16)
-        except ValueError:
-            change_id_is_hex = False
-        if change_id.upper().startswith('I') and change_id_is_hex:
-            if change_id[0] != 'I':
-                yield "The Depends-On value must use uppercase I"
-        else:
-            yield "The Depends-On value is not a Gerrit Change-Id"
+
+def is_valid_change_id(s):
+    """A Gerrit change id is a 40 character hex string prefixed with 'I'."""
+    return re.match('^I[a-f0-9]{40}$', s)
 
 
 def check_message(lines):
@@ -120,8 +113,10 @@ def check_message(lines):
     - For any "^Bug: " line, prior line is another Bug: line or empty
     - For any "^Depends-On: " line, next line is not blank
     - For any "^Depends-On: " line, prior line is Bug|Depends-On or empty
+    - For any "^Depends-On: " line, the RHS is a valid change id
     - Exactly one "Change-Id: " line per commit
     - For "Change-Id: " line, prior line is empty or "^(Bug|Depends-On): "
+    - For "Change-Id: " line, the RHS is a valid change id
     - No blank lines between any "(Bug|Depends-On): " lines and "Change-Id: "
     - Only "(cherry picked from commit" can follow "Change-Id: "
     - Message has at least 3 lines (subject, blank, Change-Id)
@@ -166,7 +161,13 @@ def check_message(lines):
                 errors.append(
                     "Line %d: Expected blank line before Depends-On:" % rline)
 
-        if line.startswith('Change-Id: I'):
+            (label, rhs) = line.split(' ', 1)
+            if not is_valid_change_id(rhs):
+                errors.append(
+                    "Line %d: value must be a single valid Gerrit change id"
+                    % rline)
+
+        if line.startswith('Change-Id:'):
             # Only expect one "Change-Id: " line
             if changeid_line is not False:
                 errors.append(
@@ -195,6 +196,12 @@ def check_message(lines):
                         % (lno, label))
 
             changeid_line = rline
+
+            (label, rhs) = line.split(' ', 1)
+            if not is_valid_change_id(rhs):
+                errors.append(
+                    "Line %d: value must be a single valid Gerrit change id"
+                    % rline)
 
         last_lineno = rline
         last_line = line

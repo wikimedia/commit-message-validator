@@ -22,6 +22,7 @@ Line 15: Unexpected blank line after Depends-On:
 Line 16: The phabricator task ID must use uppercase T
 Line 18: Extra Change-Id found, next at 19
 Line 20: Expected blank line before Depends-On:
+Line 20: value must be a single valid Gerrit change id
 Line 21: Unexpected blank line after Depends-On:
 Line 20: Unexpected line after Change-Id
 Line 21: Unexpected line after Change-Id

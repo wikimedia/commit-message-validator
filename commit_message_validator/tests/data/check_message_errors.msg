@@ -11,12 +11,12 @@ Bug: T11
 Bug: T12
 Bug: t13
 
-Depends-On: I1234
+Depends-On: I395fd614bfa8bcfc46a35f955fb77ec6f03f7a01
 
 Bug: t14
-Depends-On: I5678
-Change-Id: I1234567890abcdef123456
-Change-Id: I1234567890abcdef123457
+Depends-On: I00d0f7c3b294c3ddc656f9a5447df89c63142203
+Change-Id: I20c70ff250085de49e4b961da4b53258858df1dd
+Change-Id: I62a5bbf5a94da6f121a7836859371a2a2f60873d
 Depends-On: I9abc
 
 Foo bar
