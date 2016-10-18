@@ -121,7 +121,7 @@ def line_errors(lineno, line):
 
         if normalized_name not in FOOTERS:
             # Meh. Not a name we care about
-            raise StopIteration
+            return
 
         if normalized_name in BAD_FOOTERS:
             # Treat as the correct name for the rest of the rules
