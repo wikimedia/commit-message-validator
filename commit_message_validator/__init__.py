@@ -271,5 +271,6 @@ def main(commit_id='HEAD'):
 
     return check_message(lines)
 
+
 if __name__ == '__main__':
     sys.exit(main())
