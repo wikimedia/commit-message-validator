@@ -5,6 +5,7 @@ Runs through the provided git repo and samples the commit
 messages to see whether they would pass the commit message
 validator.
 """
+from __future__ import division
 
 import os
 import sys
