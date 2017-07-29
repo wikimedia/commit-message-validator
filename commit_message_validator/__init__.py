@@ -248,7 +248,7 @@ def check_message(lines):
 
 def check_output(args):
     """Wrapper around subprocess to handle Python 3"""
-    return subprocess.check_output(args).decode()
+    return subprocess.check_output(args).decode("utf8")
 
 
 def main(commit_id='HEAD'):
