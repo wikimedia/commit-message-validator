@@ -266,8 +266,10 @@ def main(commit_id='HEAD'):
 
     commit = check_output(
         ['git', 'log', '--format=%B', '--no-color', commit_id, '-n1'])
-    # last line is always an empty line
-    lines = commit.splitlines()[:-1]
+    lines = commit.splitlines()
+    # last line is sometimes an empty line
+    if len(lines) > 0 and not lines[-1]:
+        lines = lines[:-1]
 
     return check_message(lines)
 
