@@ -220,7 +220,7 @@ def check_message(lines):
         last_lineno = rline
         last_line = line
 
-    if last_lineno < 2:
+    if last_lineno < 3:
         errors.append("Line %d: Expected at least 3 lines" % last_lineno)
 
     if changeid_line is False:
