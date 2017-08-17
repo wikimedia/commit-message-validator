@@ -23,6 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 """
 from __future__ import print_function
 
+import os
 import re
 import subprocess
 import sys
@@ -279,5 +280,33 @@ def main(commit_id='HEAD'):
     return check_message(lines)
 
 
+def install():
+    """Install post-commit git hook."""
+    cmd = sys.executable + ' ' + __file__
+    print('Will install a git hook that runs: %s' % cmd)
+    git_dir = check_output(['git', 'rev-parse', '--git-dir']).strip()
+    path = os.path.join(git_dir, 'hooks', 'post-commit')
+    if os.path.exists(path):
+        # Check to see if it's already installed
+        with open(path) as f:
+            contents = f.read()
+        if 'commit-message-validator' in contents or 'commit_message_validator' in contents:
+            print('commit-message-validator git hook is already installed')
+            return 1
+        # Not installed, but hook already exists.
+        with open(path, 'a') as f:
+            f.write('\n' + cmd + '\n')
+        print('Installed commit-message-validator in %s' % path)
+        return 0
+    # Doesn't exist, we need to create a hook and make it +x
+    with open(path, 'w') as f:
+        f.write(cmd + '\n')
+    subprocess.check_call(['chmod', '+x', path])
+    return 0
+
+
 if __name__ == '__main__':
-    sys.exit(main())
+    if sys.argv[-1] == 'install':
+        sys.exit(install())
+    else:
+        sys.exit(main())
