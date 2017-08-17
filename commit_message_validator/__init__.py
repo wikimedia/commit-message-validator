@@ -81,8 +81,9 @@ def is_valid_change_id(s):
     return RE_CHANGEID.match(s)
 
 
-def line_errors(lineno, line):
-    """Check a commit message line to see if it has errors.
+class MessageValidator(object):
+
+    """Iterator to check a commit message line for errors.
 
     Checks:
     - First line <=80 characters
@@ -94,62 +95,132 @@ def line_errors(lineno, line):
     - "Change-Id:" is followed one change id ("I...")
     - No "Task: ", "Fixes: ", "Closes: " lines
     """
-    # First line <=80
-    if lineno == 0:
-        if len(line) > 80:
-            yield "First line should be <=80 characters"
-        m = RE_SUBJECT_BUG_OR_TASK.match(line)
-        if m:
-            yield "Do not define bug in the header"
 
-    # Second line blank
-    elif lineno == 1:
-        if line:
-            yield "Second line should be empty"
+    def __init__(self, lines):
+        self._lines = lines
+        self._first_changeid = False
+        self._in_footers = False
 
-    # No line >100 unless it is all a URL
-    if len(line) > 100 and not RE_URL.match(line):
-        yield "Line should be <=100 characters"
+        self._generator = self._check_generator()
 
-    # Look for and validate footer lines
-    m = RE_FOOTER.match(line)
-    if m:
-        name = m.group('name')
-        normalized_name = name.lower()
-        ws = m.group('ws')
-        value = m.group('value')
+    def _check_line(self, lineno):
+        line = self._lines[lineno]
+        # First line <=80
+        if lineno == 0:
+            if len(line) > 80:
+                yield "First line should be <=80 characters"
+            m = RE_SUBJECT_BUG_OR_TASK.match(line)
+            if m:
+                yield "Do not define bug in the header"
 
-        if normalized_name not in FOOTERS:
-            # Meh. Not a name we care about
+        # Second line blank
+        elif lineno == 1:
+            if line:
+                yield "Second line should be empty"
+
+        # No line >100 unless it is all a URL
+        elif len(line) > 100 and not RE_URL.match(line):
+            yield "Line should be <=100 characters"
+
+        if not line:
+            if self._in_footers:
+                yield "Unexpected blank line"
             return
 
-        if normalized_name in BAD_FOOTERS:
-            # Treat as the correct name for the rest of the rules
-            normalized_name = BAD_FOOTERS[normalized_name]
+        # Look for and validate footer lines
+        m = RE_FOOTER.match(line)
+        if m:
+            name = m.group('name')
+            normalized_name = name.lower()
+            ws = m.group('ws')
+            value = m.group('value')
 
-        if normalized_name == 'bug':
-            if name != 'Bug':
-                yield "Use 'Bug:' not '{0}:'".format(name)
-            if not is_valid_bug_id(value):
-                yield "Bug: value must be a single phabricator task ID"
+            if normalized_name not in FOOTERS:
+                if self._in_footers:
+                    yield "Unexpected line in footers"
+                else:
+                    # Meh. Not a name we care about
+                    return
+            else:
+                if lineno > 0 and not self._lines[lineno - 1]:
+                    self._in_footers = True
+                elif not self._in_footers:
+                    yield "Expected '{0}:' to be in footer".format(name)
 
-        elif normalized_name == 'depends-on':
-            if name != 'Depends-On':
-                yield "Use 'Depends-On:' not '%s:'" % name
-            if not is_valid_change_id(value):
-                yield "Depends-On: value must be a single Gerrit change id"
+            if normalized_name in BAD_FOOTERS:
+                # Treat as the correct name for the rest of the rules
+                normalized_name = BAD_FOOTERS[normalized_name]
 
-        elif normalized_name == 'change-id':
-            if name != 'Change-Id':
-                yield "Use 'Change-Id:' not '%s:'" % name
-            if not is_valid_change_id(value):
-                yield "Change-Id: value must be a single Gerrit change id"
+            if normalized_name == 'bug':
+                if name != 'Bug':
+                    yield "Use 'Bug:' not '{0}:'".format(name)
+                if not is_valid_bug_id(value):
+                    yield "Bug: value must be a single phabricator task ID"
 
-        elif name[0].upper() != name[0]:
-            yield "'%s:' must start with a capital letter" % name
+            elif normalized_name == 'depends-on':
+                if name != 'Depends-On':
+                    yield "Use 'Depends-On:' not '%s:'" % name
+                if not is_valid_change_id(value):
+                    yield "Depends-On: value must be a single Gerrit change id"
 
-        if ws != ' ':
-            yield "Expected one space after '%s:'" % name
+            elif normalized_name == 'change-id':
+                if name != 'Change-Id':
+                    yield "Use 'Change-Id:' not '%s:'" % name
+                if not is_valid_change_id(value):
+                    yield "Change-Id: value must be a single Gerrit change id"
+                if self._first_changeid is not False:
+                    yield ("Extra Change-Id found, first at "
+                           "{0}".format(self._first_changeid))
+                else:
+                    self._first_changeid = lineno + 1
+
+            elif name[0].upper() != name[0]:
+                yield "'%s:' must start with a capital letter" % name
+
+            if (normalized_name in BEFORE_CHANGE_ID and
+                    self._first_changeid is not False):
+                yield ("Expected '{0}:' to come before Change-Id on line "
+                       "{1}").format(name, self._first_changeid)
+
+            if ws != ' ':
+                yield "Expected one space after '%s:'" % name
+
+        elif self._in_footers:
+            # if it wasn't a footer (not a match) but it is in the footers
+            cherry_pick = RE_CHERRYPICK.match(line)
+            if cherry_pick:
+                if lineno < len(self._lines) - 1:
+                    yield "Cherry pick line is not the last line"
+            else:
+                yield "Expected footer line to follow format of 'Name: ...'"
+
+    def _check_global(self):
+        """All checks that are done after the line checks."""
+        if len(self._lines) < 3:
+            yield "Expected at least 3 lines"
+
+        if self._first_changeid is False:
+            yield "Expected Change-Id"
+
+    def _check_generator(self):
+        """A generator returning each error and line number."""
+        for lineno in range(len(self._lines)):
+            for e in self._check_line(lineno):
+                yield lineno + 1, e
+
+        for e in self._check_global():
+            yield len(self._lines), e
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        """Return the next error of the generator."""
+        return next(self._generator)
+
+    def next(self):
+        # For Python 2 support
+        return self.__next__()
 
 
 def check_message(lines):
@@ -164,72 +235,9 @@ def check_message(lines):
     - Any "Bug:" and "Depends-On:" lines come before "Change-Id:"
     - "(cherry picked from commit ...)" is last line in footer if present
     """
-    errors = []
-    last_lineno = 0
-    last_line = ''
-    changeid_line = False
-    cherrypick_line = False
-    in_footer = False
-
-    for lineno, line in enumerate(lines):
-        rline = lineno + 1
-        errors.extend('Line {0}: {1}'.format(rline, e)
-                      for e in line_errors(lineno, line))
-
-        if in_footer:
-            if line == '':
-                errors.append(
-                    "Line {0}: Unexpected blank line".format(rline))
-            elif not (RE_FOOTER.match(line) or RE_CHERRYPICK.match(line)):
-                errors.append((
-                    "Line {0}: Expected footer line to follow format of "
-                    "'Name: ...'").format(rline))
-
-        m = RE_FOOTER.match(line)
-        if m:
-            name = m.group('name')
-            normalized_name = name.lower()
-
-            if last_line == '' and normalized_name in FOOTERS:
-                # The first footer after a blank line starts the footer
-                in_footer = True
-
-            if normalized_name in FOOTERS and not in_footer:
-                errors.append(
-                    "Line {0}: Expected '{1}:' to be in footer".format(
-                        rline, name))
-
-            if normalized_name == 'change-id':
-                # Only expect one "Change-Id: " line
-                if changeid_line is not False:
-                    errors.append(
-                        "Line {0}: Extra Change-Id found, first at {1}".format(
-                            rline, changeid_line))
-                changeid_line = rline
-
-            elif normalized_name in BEFORE_CHANGE_ID:
-                if changeid_line is not False:
-                    errors.append((
-                        "Line {0}: Expected '{1}:' to come before "
-                        "Change-Id on line {2}").format(
-                            rline, name, changeid_line))
-
-        elif RE_CHERRYPICK.match(line):
-            cherrypick_line = rline
-
-        last_lineno = rline
-        last_line = line
-
-    if last_lineno < 3:
-        errors.append("Line %d: Expected at least 3 lines" % last_lineno)
-
-    if changeid_line is False:
-        errors.append("Line %d: Expected Change-Id" % last_lineno)
-
-    if cherrypick_line and cherrypick_line != last_lineno:
-        errors.append(
-            "Line {0}: Cherry pick expected to be last line".format(
-                cherrypick_line))
+    validator = MessageValidator(lines)
+    errors = ["Line {0}: {1}".format(lineno, error)
+              for lineno, error in validator]
 
     print('commit-message-validator v%s' % __version__)
     if errors:

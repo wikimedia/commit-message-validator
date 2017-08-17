@@ -3,29 +3,29 @@ The following errors were found:
 Line 1: First line should be <=80 characters
 Line 2: Second line should be empty
 Line 3: Line should be <=100 characters
+Line 4: Expected 'Fixes:' to be in footer
 Line 4: Use 'Bug:' not 'Fixes:'
 Line 4: Bug: value must be a single phabricator task ID
 Line 4: Expected one space after 'Fixes:'
-Line 4: Expected 'Fixes:' to be in footer
+Line 5: Expected 'Closes:' to be in footer
 Line 5: Use 'Bug:' not 'Closes:'
 Line 5: Bug: value must be a single phabricator task ID
 Line 5: Expected one space after 'Closes:'
-Line 5: Expected 'Closes:' to be in footer
-Line 6: Use 'Bug:' not 'Task:'
 Line 6: Expected 'Task:' to be in footer
+Line 6: Use 'Bug:' not 'Task:'
+Line 7: Expected 'BUG:' to be in footer
 Line 7: Use 'Bug:' not 'BUG:'
 Line 7: Bug: value must be a single phabricator task ID
 Line 7: Expected one space after 'BUG:'
-Line 7: Expected 'BUG:' to be in footer
-Line 8: Bug: value must be a single phabricator task ID
 Line 8: Expected 'Bug:' to be in footer
+Line 8: Bug: value must be a single phabricator task ID
 Line 12: Bug: value must be a single phabricator task ID
 Line 13: Unexpected blank line
 Line 15: Unexpected blank line
 Line 16: Bug: value must be a single phabricator task ID
 Line 19: Extra Change-Id found, first at 18
 Line 20: Depends-On: value must be a single Gerrit change id
-Line 20: Expected 'Depends-On:' to come before Change-Id on line 19
+Line 20: Expected 'Depends-On:' to come before Change-Id on line 18
 Line 21: Unexpected blank line
 Line 22: Expected footer line to follow format of 'Name: ...'
 Please review <https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines>
