@@ -43,15 +43,12 @@ FOOTERS = [
     'bug',
     'cc',
     'change-id',
-    'closes',
     'co-authored-by',
     'depends-on',
-    'fixes',
     'reported-by',
     'reviewed-by',
     'signed-off-by',
     'suggested-by',
-    'task',
     'tested-by',
     'thanks',
 ]
@@ -135,6 +132,10 @@ class MessageValidator(object):
             ws = m.group('ws')
             value = m.group('value')
 
+            if normalized_name in BAD_FOOTERS:
+                # Treat as the correct name for the rest of the rules
+                normalized_name = BAD_FOOTERS[normalized_name]
+
             if normalized_name not in FOOTERS:
                 if self._in_footers:
                     yield "Unexpected line in footers"
@@ -146,10 +147,6 @@ class MessageValidator(object):
                     self._in_footers = True
                 elif not self._in_footers:
                     yield "Expected '{0}:' to be in footer".format(name)
-
-            if normalized_name in BAD_FOOTERS:
-                # Treat as the correct name for the rest of the rules
-                normalized_name = BAD_FOOTERS[normalized_name]
 
             if normalized_name == 'bug':
                 if name != 'Bug':
