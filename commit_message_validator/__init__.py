@@ -39,20 +39,21 @@ RE_FOOTER = re.compile(
 RE_CHERRYPICK = re.compile(r'^\(cherry picked from commit [0-9a-fA-F]{40}\)$')
 
 # Header-like lines that we are interested in validating
-FOOTERS = [
-    'acked-by',
-    'bug',
-    'cc',
-    'change-id',
-    'co-authored-by',
-    'depends-on',
-    'reported-by',
-    'reviewed-by',
-    'signed-off-by',
-    'suggested-by',
-    'tested-by',
-    'thanks',
+CORRECT_FOOTERS = [
+    'Acked-By',
+    'Bug',
+    'Cc',
+    'Change-Id',
+    'Co-Authored-By',
+    'Depends-On',
+    'Reported-By',
+    'Reviewed-by',
+    'Signed-off-by',
+    'Suggested-By',
+    'Tested-by',
+    'Thanks',
 ]
+FOOTERS = dict((footer.lower(), footer) for footer in CORRECT_FOOTERS)
 
 BEFORE_CHANGE_ID = [
     'bug',
@@ -149,21 +150,19 @@ class MessageValidator(object):
                 elif not self._in_footers:
                     yield "Expected '{0}:' to be in footer".format(name)
 
+            correct_name = FOOTERS[normalized_name]
+            if correct_name != name:
+                yield "Use '{0}:' not '{1}:'".format(correct_name, name)
+
             if normalized_name == 'bug':
-                if name != 'Bug':
-                    yield "Use 'Bug:' not '{0}:'".format(name)
                 if not is_valid_bug_id(value):
                     yield "Bug: value must be a single phabricator task ID"
 
             elif normalized_name == 'depends-on':
-                if name != 'Depends-On':
-                    yield "Use 'Depends-On:' not '%s:'" % name
                 if not is_valid_change_id(value):
                     yield "Depends-On: value must be a single Gerrit change id"
 
             elif normalized_name == 'change-id':
-                if name != 'Change-Id':
-                    yield "Use 'Change-Id:' not '%s:'" % name
                 if not is_valid_change_id(value):
                     yield "Change-Id: value must be a single Gerrit change id"
                 if self._first_changeid is not False:
@@ -171,9 +170,6 @@ class MessageValidator(object):
                            "{0}".format(self._first_changeid))
                 else:
                     self._first_changeid = lineno + 1
-
-            elif name[0].upper() != name[0]:
-                yield "'%s:' must start with a capital letter" % name
 
             if (normalized_name in BEFORE_CHANGE_ID and
                     self._first_changeid is not False):
