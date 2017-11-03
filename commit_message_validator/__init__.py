@@ -28,7 +28,7 @@ import re
 import subprocess
 import sys
 
-__version__ = '0.4.1'
+__version__ = '0.5.0'
 
 RE_BUGID = re.compile('^T[0-9]+$')
 RE_CHANGEID = re.compile('^I[a-f0-9]{40}$')
