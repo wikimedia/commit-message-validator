@@ -253,7 +253,7 @@ def check_output(args):
     return subprocess.check_output(args).decode("utf8")
 
 
-def main(commit_id='HEAD'):
+def validate(commit_id='HEAD'):
     """Validate the current HEAD commit message."""
     # First, we need to check if HEAD is a merge commit
     # We do this by telling if it has multiple parents
@@ -301,8 +301,12 @@ def install():
     return 0
 
 
-if __name__ == '__main__':
+def main():
     if sys.argv[-1] == 'install':
         sys.exit(install())
     else:
-        sys.exit(main())
+        sys.exit(validate())
+
+
+if __name__ == '__main__':
+    main()
