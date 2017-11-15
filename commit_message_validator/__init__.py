@@ -40,16 +40,17 @@ RE_CHERRYPICK = re.compile(r'^\(cherry picked from commit [0-9a-fA-F]{40}\)$')
 
 # Header-like lines that we are interested in validating
 CORRECT_FOOTERS = [
-    'Acked-By',
+    'Acked-by',
     'Bug',
     'Cc',
     'Change-Id',
-    'Co-Authored-By',
+    'Co-Authored-by',
     'Depends-On',
-    'Reported-By',
+    'Requested-by',
+    'Reported-by',
     'Reviewed-by',
     'Signed-off-by',
-    'Suggested-By',
+    'Suggested-by',
     'Tested-by',
     'Thanks',
 ]

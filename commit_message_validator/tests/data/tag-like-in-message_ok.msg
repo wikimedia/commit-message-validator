@@ -8,5 +8,5 @@ Special:Login) is left for a followup.
 Bug: T91699
 Bug: T71589
 Bug: T111299
-Co-Authored-By: Gergő Tisza <gtisza@wikimedia.org>
+Co-Authored-by: Gergő Tisza <gtisza@wikimedia.org>
 Change-Id: If89d24838e326fe25fe867d02181eebcfbb0e196
