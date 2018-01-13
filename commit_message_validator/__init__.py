@@ -280,6 +280,8 @@ def validate(commit_id='HEAD'):
 def install():
     """Install post-commit git hook."""
     cmd = sys.executable + ' ' + __file__
+    if os.name == 'nt':  # T184845
+        cmd = cmd.replace('\\', '/')
     print('Will install a git hook that runs: %s' % cmd)
     git_dir = check_output(['git', 'rev-parse', '--git-dir']).strip()
     path = os.path.join(git_dir, 'hooks', 'post-commit')
