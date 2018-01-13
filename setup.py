@@ -12,7 +12,10 @@ setup(
     license='GPL-2.0+',
     description='Validate the format of a commit message to Wikimedia Gerrit standards',
     long_description=open('README').read(),
-    packages=['commit_message_validator'],
+    packages=[
+        'commit_message_validator',
+        'commit_message_validator.validators',
+    ],
     install_requires=[],
     test_suite='nose.collector',
     tests_require=['nose'],

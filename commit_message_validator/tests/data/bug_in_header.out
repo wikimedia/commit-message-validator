@@ -1,0 +1,5 @@
+commit-message-validator v%version%
+The following errors were found:
+Line 1: Do not define bug in the header
+Please review <https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines>
+and update your commit message accordingly
