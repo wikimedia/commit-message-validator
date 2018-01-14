@@ -1,5 +1,6 @@
 commit-message-validator v%version%
+Using GerritMessageValidator to check the commit message
 The following errors were found:
-Line 6: Unexpected line in footers
+Line 1: Do not define bug in the header
 Please review <https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines>
 and update your commit message accordingly

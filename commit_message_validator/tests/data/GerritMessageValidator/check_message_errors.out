@@ -1,4 +1,5 @@
 commit-message-validator v%version%
+Using GerritMessageValidator to check the commit message
 The following errors were found:
 Line 1: First line should be <=80 characters
 Line 2: Second line should be empty

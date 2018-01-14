@@ -1,0 +1,4 @@
+commit-message-validator v%version%
+Using GitHubMessageValidator to check the commit message
+The following errors were found:
+Line 1: Do not define bug in the header

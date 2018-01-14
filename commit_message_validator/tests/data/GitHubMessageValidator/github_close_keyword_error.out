@@ -1,0 +1,4 @@
+commit-message-validator v%version%
+Using GitHubMessageValidator to check the commit message
+The following errors were found:
+Line 3: Do not write "closing issue keywords" for closing an issue that is in another repository

@@ -1,5 +1,8 @@
 commit-message-validator v%version%
+Using GerritMessageValidator to check the commit message
 The following errors were found:
-Line 3: Depends-On: value must be a single Gerrit change id
+Line 2: Second line should be empty
+Line 2: Expected 'Change-Id:' to be in footer
+Line 2: Expected at least 3 lines
 Please review <https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines>
 and update your commit message accordingly

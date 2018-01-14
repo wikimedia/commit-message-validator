@@ -29,35 +29,84 @@ import sys
 
 from commit_message_validator.validators.GerritMessageValidator import (
     GerritMessageValidator)
+from commit_message_validator.validators.GitHubMessageValidator import (
+    GitHubMessageValidator)
 
 __version__ = '0.5.2'
 
 
-def check_message(lines):
-    """Check a commit message to see if it has errors.
+WIKIMEDIA_GERRIT_URL = 'gerrit.wikimedia.org'
+GERRIT_CHECK_FAIL_MESSAGE_SUGGESTION = (
+    'Please review '
+    '<https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines>'
+    '\nand update your commit message accordingly')
 
-    Checks:
-    - All lines ok as checked by line_errors()
-    - Message has at least 3 lines (subject, blank, Change-Id)
-    - For any footer line, next line is not blank
-    - For any footer line, prior line is another footer line or blank
-    - Exactly one "Change-Id: " line per commit
-    - Any "Bug:" and "Depends-On:" lines come before "Change-Id:"
-    - "(cherry picked from commit ...)" is last line in footer if present
+
+def get_message_validator_class():
     """
-    validator = GerritMessageValidator(lines)
+    Get appropriate MessageValidator class to check the commit message
+    in the repo.
+
+    This method will check whether the remote repo is a Gerrit or GitHub, and
+    return the appropriate MessageValidator class to check the commit message.
+
+    :return: A class that implements `MessageValidator` class.
+    """
+    result = None
+    if os.path.exists('.gitreview') and os.path.isfile('.gitreview'):
+        result = check_output(
+            ['git', 'config', '-f', '.gitreview', '--get', 'gerrit.host'])
+
+    if result and WIKIMEDIA_GERRIT_URL in result:
+        return GerritMessageValidator
+    else:
+        result = check_output(
+            ['git', 'config', '--get-regex', '^remote.*.url$'])
+
+        remotes = result.splitlines()
+        remote_dict = dict()
+
+        for remote in remotes:
+            remote_splitted = remote.split(' ')
+            remote_dict[remote_splitted[0]] = remote_splitted[1]
+
+        if (WIKIMEDIA_GERRIT_URL in {remote_dict.get('remote.wikimedia.url'),
+                                     remote_dict.get('remote.gerrit.url')}):
+            return GerritMessageValidator
+        elif 'github.com' in remote_dict.get('remote.origin.url'):
+            return GitHubMessageValidator
+        else:
+            # If there's nothing match just use GerritMessageValidator
+            return GerritMessageValidator
+
+
+def check_message(lines, validator_cls=GerritMessageValidator):
+    """
+    Check a commit message to see if it has errors.
+
+    This method will check the commit message by using an appropriate checker
+    depending on what remote repo is.
+
+    :param lines:
+        list of lines from the commit message that will be checked.
+    :param validator_cls:
+        A class that implements `MessageValidator` class,
+        default to `GerritMessageValidator`.
+    :return:
+        An integer, used for exit code.
+    """
     errors = ["Line {0}: {1}".format(lineno, error)
-              for lineno, error in validator]
+              for lineno, error in validator_cls(lines)]
 
     print('commit-message-validator v%s' % __version__)
+    print('Using {0} to check the commit message'.format(
+        validator_cls.__name__))
     if errors:
         print('The following errors were found:')
         for e in errors:
             print(e)
-        print(
-            'Please review '
-            '<https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines>'
-            '\nand update your commit message accordingly')
+        if validator_cls is GerritMessageValidator:
+            print(GERRIT_CHECK_FAIL_MESSAGE_SUGGESTION)
         return 1
     else:
         print('Commit message is formatted properly! Keep up the good work!')
@@ -89,7 +138,7 @@ def validate(commit_id='HEAD'):
     if len(lines) > 0 and not lines[-1]:
         lines = lines[:-1]
 
-    return check_message(lines)
+    return check_message(lines, get_message_validator_class())
 
 
 def install():

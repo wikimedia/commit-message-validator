@@ -1,2 +1,3 @@
 commit-message-validator v%version%
+Using GitHubMessageValidator to check the commit message
 Commit message is formatted properly! Keep up the good work!
