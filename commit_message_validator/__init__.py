@@ -163,7 +163,7 @@ def install():
         return 0
     # Doesn't exist, we need to create a hook and make it +x
     with open(path, 'w') as f:
-        f.write(cmd + '\n')
+        f.write('#!/bin/sh\n' + cmd + '\n')
     subprocess.check_call(['chmod', '+x', path])
     return 0
 
