@@ -3,6 +3,7 @@ import re
 from commit_message_validator.message_validator import MessageValidator
 
 RE_URL = re.compile(r'^<?https?://\S+>?$', re.IGNORECASE)
+RE_REVERT_SUBJECT = re.compile('^Revert ".*"$')
 
 
 class GlobalMessageValidator(MessageValidator):
@@ -10,7 +11,7 @@ class GlobalMessageValidator(MessageValidator):
     An iterator to validate all remote repo commit message.
 
     Checks:
-    - First line <=80 characters
+    - First line <=80 characters or /^Revert ".*"$/
     - Second line blank
     - No line >100 characters (unless it is only a URL)
 
@@ -23,7 +24,8 @@ class GlobalMessageValidator(MessageValidator):
 
         # First line <=80
         if lineno == 0 and len(line) > 80:
-            yield "First line should be <=80 characters"
+            if not RE_REVERT_SUBJECT.match(line):
+                yield "First line should be <=80 characters"
 
         # Second line blank
         elif lineno == 1 and line:

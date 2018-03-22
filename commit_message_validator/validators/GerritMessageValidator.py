@@ -63,7 +63,7 @@ class GerritMessageValidator(GlobalMessageValidator):
     An iterator to validate Gerrit remote repo commit message.
 
     Checks:
-    - First line <=80 characters
+    - First line <=80 characters or /^Revert ".*"$/
     - Second line blank
     - No line >100 characters (unless it is only a URL)
     - Footer lines ("Foo: ...") are capitalized and have a space after the ':'

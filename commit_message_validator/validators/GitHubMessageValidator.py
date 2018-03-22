@@ -15,7 +15,7 @@ class GitHubMessageValidator(GlobalMessageValidator):
     An iterator to validate GitHub remote repo commit message.
 
     Checks:
-    - First line <=80 characters
+    - First line <=80 characters or /^Revert ".*"$/
     - Second line blank
     - No line >100 characters (unless it is only a URL)
     - Issue should not be defined in the header
