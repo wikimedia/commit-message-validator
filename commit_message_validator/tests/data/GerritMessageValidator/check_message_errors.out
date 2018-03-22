@@ -26,7 +26,6 @@ Line 15: Unexpected blank line
 Line 16: Bug: value must be a single phabricator task ID
 Line 19: Extra Change-Id found, first at 18
 Line 20: Depends-On: value must be a single Gerrit change id
-Line 20: Expected 'Depends-On:' to come before Change-Id on line 18
 Line 21: Unexpected blank line
 Line 22: Expected footer line to follow format of 'Name: ...'
 Please review <https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines>

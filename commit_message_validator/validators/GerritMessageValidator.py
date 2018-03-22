@@ -30,7 +30,6 @@ FOOTERS = dict((footer.lower(), footer) for footer in CORRECT_FOOTERS)
 BEFORE_CHANGE_ID = [
     'bug',
     'closes',
-    'depends-on',
     'fixes',
     'task',
 ]
