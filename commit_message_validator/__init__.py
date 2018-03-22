@@ -102,15 +102,49 @@ def check_message(lines, validator_cls=GerritMessageValidator):
     print('Using {0} to check the commit message'.format(
         validator_cls.__name__))
     if errors:
-        print('The following errors were found:')
+        color, reset = ansi_codes()
+        print('{}The following errors were found:{}'.format(color, reset))
         for e in errors:
-            print(e)
+            print("{}{}{}".format(color, e, reset))
         if validator_cls is GerritMessageValidator:
-            print(GERRIT_CHECK_FAIL_MESSAGE_SUGGESTION)
+            print("{}{}{}".format(
+                color, GERRIT_CHECK_FAIL_MESSAGE_SUGGESTION, reset))
         return 1
     else:
         print('Commit message is formatted properly! Keep up the good work!')
     return 0
+
+
+def ansi_codes():
+    """Get ANSI escape sequences for coloring error output.
+
+    Can be configured using .gitconfig settings to disable or change color
+    from the default red text.
+
+    Disable color output:
+        git config color.commit_message_validator false
+
+    Force color output:
+        git config color.commit_message_validator true
+
+    Change color:
+        git config color.commit_message_validator.error yellow
+    """
+    stdout_is_tty = 'true' if sys.stdout.isatty() else 'false'
+    try:
+        # Ask git if colors should be used
+        # Raises CalledProcessError if disabled
+        subprocess.check_call([
+            'git', 'config', '--get-colorbool',
+            'color.commit_message_validator', stdout_is_tty
+        ])
+        # Get configured color code (default to red text)
+        return check_output([
+            'git', 'config', '--get-color',
+            'color.commit_message_validator.error', 'red'
+        ]), '\x1b[0m'
+    except subprocess.CalledProcessError:
+        return '', ''
 
 
 def check_output(args):

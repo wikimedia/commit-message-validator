@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import re
 from six import with_metaclass
 import sys
 import unittest
@@ -39,6 +40,10 @@ class MetaValidator(type):
     """
 
     def __new__(cls, name, bases, dct):
+        # Regular expression for matching ANSI escape sequences
+        # https://stackoverflow.com/a/14693789/8171
+        re_esc = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
+
         def create_test_method(msg, expected, expected_exit_code,
                                message_validator_name):
             def test(self):
@@ -50,9 +55,11 @@ class MetaValidator(type):
                     exit_code = cmv.check_message(
                         msg.splitlines(),
                         MESSAGE_VALIDATOR_MAP[message_validator_name])
+                    # Ignore ANSI escapes in output
+                    plain_out = re_esc.sub('', out.getvalue())
                     # For some unknown reason, assertEqual isn't always
                     # choosing the multiline method for the actual assertion.
-                    self.assertMultiLineEqual(expected, out.getvalue())
+                    self.assertMultiLineEqual(expected, plain_out)
                     self.assertEqual(expected_exit_code, exit_code)
                 finally:
                     sys.stdout = saved_stdout
