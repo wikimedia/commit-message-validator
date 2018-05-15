@@ -9,7 +9,7 @@ setup(
     author='Bryan Davis',
     author_email='bd808@wikimedia.org',
     url='https://www.mediawiki.org/wiki/commit-message-validator',
-    license='GPL-2.0+',
+    license='GPL-2.0-or-later',
     description='Validate the format of a commit message to Wikimedia Gerrit standards',
     long_description=open('README').read(),
     packages=[
