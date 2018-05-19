@@ -36,7 +36,7 @@ def main():
         try:
             out = StringIO()
             sys.stdout = out
-            exit_code = cmv.main(sha1)
+            exit_code = cmv.validate(sha1)
             if exit_code != 0:
                 saved_stdout.write('Fail: ' + sha1 + '\n')
                 saved_stdout.write(out.getvalue() + '\n')
