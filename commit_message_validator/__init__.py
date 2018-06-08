@@ -134,7 +134,7 @@ def ansi_codes():
     try:
         # Ask git if colors should be used
         # Raises CalledProcessError if disabled
-        subprocess.check_call([
+        subprocess.check_output([
             'git', 'config', '--get-colorbool',
             'color.commit_message_validator', stdout_is_tty
         ])
