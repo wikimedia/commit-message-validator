@@ -3,3 +3,7 @@
 .tox/
 build/
 dist/
+.eggs/
+.cache/
+.coverage
+.vscode/
