@@ -17,8 +17,6 @@ setup(
         'commit_message_validator.validators',
     ],
     install_requires=[],
-    test_suite='nose.collector',
-    tests_require=['nose'],
     entry_points={
         'console_scripts': [
             'commit-message-validator = commit_message_validator:main'

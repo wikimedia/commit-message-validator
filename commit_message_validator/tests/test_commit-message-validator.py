@@ -4,7 +4,6 @@ import os
 import re
 from six import with_metaclass
 import sys
-import unittest
 
 import commit_message_validator as cmv
 
@@ -57,10 +56,8 @@ class MetaValidator(type):
                         MESSAGE_VALIDATOR_MAP[message_validator_name])
                     # Ignore ANSI escapes in output
                     plain_out = re_esc.sub('', out.getvalue())
-                    # For some unknown reason, assertEqual isn't always
-                    # choosing the multiline method for the actual assertion.
-                    self.assertMultiLineEqual(expected, plain_out)
-                    self.assertEqual(expected_exit_code, exit_code)
+                    assert expected == plain_out
+                    assert expected_exit_code == exit_code
                 finally:
                     sys.stdout = saved_stdout
             return test
@@ -87,10 +84,6 @@ class MetaValidator(type):
 
 
 class TestCommitMessageValidator(
-        with_metaclass(MetaValidator, unittest.TestCase)):
+        with_metaclass(MetaValidator)):
     """Validate the commit messages using test files."""
     pass
-
-
-if __name__ == '__main__':
-    unittest.main()

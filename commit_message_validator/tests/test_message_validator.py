@@ -1,5 +1,4 @@
-import re
-import unittest
+import pytest
 
 
 from commit_message_validator.message_validator import MessageValidator
@@ -33,19 +32,16 @@ class NoCheckGlobalMessageValidator(MessageValidator):
             yield 'Error on line 4'
 
 
-class MessageValidatorTest(unittest.TestCase):
+class TestMessageValidator:
 
     def test_check_line_not_implemented(self):
         # If 'check_line()` is not implemented, the method should raise
         # NotImplementedError.
         lines = ['This is a line']
         no_check_line_mv = NoCheckLineMessageValidator(lines)
-
-        with self.assertRaisesRegexp(
-            NotImplementedError,
-            re.escape('`check_line()` should be '
-                      'implemented in NoCheckLineMessageValidator')):
+        with pytest.raises(NotImplementedError) as e:
             no_check_line_mv.check_line(0)
+        assert str(e.value) == '`check_line()` should be implemented in NoCheckLineMessageValidator'
 
     def test_check_global_not_implemented_but_called(self):
         # If 'check_global()` is not implemented, but called,
@@ -53,12 +49,9 @@ class MessageValidatorTest(unittest.TestCase):
         lines = ['This is a line']
         no_check_line_mv = NoCheckLineMessageValidator(lines)
 
-        with self.assertRaisesRegexp(
-            NotImplementedError,
-            re.escape('`check_global()` isn\'t '
-                      'implemented in NoCheckLineMessageValidator'
-                      )):
+        with pytest.raises(NotImplementedError) as e:
             no_check_line_mv.check_global()
+        assert str(e.value) == '`check_global()` isn\'t implemented in NoCheckLineMessageValidator'
 
     def test_iterate_iterable_message_validator(self):
         lines = ['This is a line', '2nd line', '3rd line', '4th line', '5th']
@@ -66,11 +59,11 @@ class MessageValidatorTest(unittest.TestCase):
         expected_result = [(lineno, msg)
                            for lineno, msg in
                            JustTestMessageValidator(lines)]
-        self.assertEqual(
-            expected_result,
-            [(2, 'Error on line 2'),
-             (4, 'Error on line 4'),
-             (5, 'From global check')])
+        assert expected_result == [
+            (2, 'Error on line 2'),
+            (4, 'Error on line 4'),
+            (5, 'From global check'),
+        ]
 
     def test_iterate_iterable_message_validator_no_check_global(self):
         lines = ['This is a line', '2nd line', '3rd line', '4th line', '5th']
@@ -78,15 +71,13 @@ class MessageValidatorTest(unittest.TestCase):
         expected_result = [(lineno, msg)
                            for lineno, msg in
                            NoCheckGlobalMessageValidator(lines)]
-        self.assertEqual(
-            expected_result,
-            [(2, 'Error on line 2'),
-             (4, 'Error on line 4')])
+        assert expected_result == [
+            (2, 'Error on line 2'),
+            (4, 'Error on line 4'),
+        ]
 
     def test_iterate_with_next_method(self):
         lines = ['This is a line', '2nd line', '3rd line', '4th line', '5th']
 
         just_test_mv = JustTestMessageValidator(lines)
-        self.assertEqual(
-            (2, 'Error on line 2'),
-            just_test_mv.next())
+        assert (2, 'Error on line 2') == just_test_mv.next()
