@@ -26,7 +26,7 @@ CORRECT_FOOTERS = [
     'Tested-by',
     'Thanks',
 ]
-FOOTERS = dict((footer.lower(), footer) for footer in CORRECT_FOOTERS)
+FOOTERS = {footer.lower(): footer for footer in CORRECT_FOOTERS}
 
 # A string listing all of the supported footers.
 FOOTERS_STRING = ", ".join(FOOTERS.values())
@@ -55,7 +55,7 @@ def is_valid_change_id(s):
     return RE_GERRIT_CHANGEID.match(s)
 
 
-class CommitMessageContext(object):
+class CommitMessageContext:
     HEADER = 1
     BODY = 2
     FOOTER = 3
@@ -83,14 +83,13 @@ class GerritMessageValidator(GlobalMessageValidator):
         :param lines: list of lines from the commit message that will be
                       checked.
         """
-        super(GerritMessageValidator, self).__init__(lines)
+        super().__init__(lines)
 
         self._commit_message_context = None
         self._first_changeid = False
 
     def check_line(self, lineno):
-        for error in super(GerritMessageValidator, self).check_line(lineno):
-            yield error
+        yield from super().check_line(lineno)
 
         line_context = self.get_context(lineno)
         line = self._lines[lineno]
@@ -164,8 +163,7 @@ class GerritMessageValidator(GlobalMessageValidator):
                 yield "Expected footer line to follow format of 'Name: ...'"
 
     def check_global(self):
-        for error in super(GerritMessageValidator, self).check_global():
-            yield error
+        yield from super().check_global()
 
         if self._first_changeid is False:
             yield "Expected Change-Id"

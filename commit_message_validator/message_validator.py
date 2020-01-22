@@ -1,7 +1,7 @@
 """A module that contains `MessageValidator` class."""
 
 
-class MessageValidator(object):
+class MessageValidator:
     """
     MessageValidator is an iterable class that will yields a tuple
     that contains line number and a string that describes the
@@ -67,7 +67,7 @@ class MessageValidator(object):
         of what error that is occured.
         """
         raise NotImplementedError(
-            '`check_global()` isn\'t implemented in {0}'.format(
+            "`check_global()` isn't implemented in {0}".format(
                 type(self).__name__))
 
     def _check_generator(self):

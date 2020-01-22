@@ -16,6 +16,7 @@ setup(
         'commit_message_validator',
         'commit_message_validator.validators',
     ],
+    python_requires='>= 3.6',
     install_requires=[],
     entry_points={
         'console_scripts': [

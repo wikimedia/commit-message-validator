@@ -24,8 +24,7 @@ class GitHubMessageValidator(GlobalMessageValidator):
     """
 
     def check_line(self, lineno):
-        for error in super(GitHubMessageValidator, self).check_line(lineno):
-            yield error
+        yield from super().check_line(lineno)
 
         line = self._lines[lineno]
 
