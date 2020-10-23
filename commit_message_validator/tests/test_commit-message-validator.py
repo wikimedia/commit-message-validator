@@ -56,6 +56,8 @@ def generate_tests():
                     with open(fn + '.out') as out:
                         out_text = out.read().replace(
                             '%version%', cmv.__version__)
+                        out_text = out_text.replace(
+                            '%known_gerrit_footers%', cmv.validators.GerritMessageValidator.FOOTERS_STRING)
                         yield (
                             msg.read(), out_text, exit_code,
                             message_validator_name

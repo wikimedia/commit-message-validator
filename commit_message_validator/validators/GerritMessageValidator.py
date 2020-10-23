@@ -28,6 +28,9 @@ CORRECT_FOOTERS = [
 ]
 FOOTERS = dict((footer.lower(), footer) for footer in CORRECT_FOOTERS)
 
+# A string listing all of the supported footers.
+FOOTERS_STRING = ", ".join(FOOTERS.values())
+
 BEFORE_CHANGE_ID = [
     'bug',
     'closes',
@@ -113,7 +116,7 @@ class GerritMessageValidator(GlobalMessageValidator):
 
             if normalized_name not in FOOTERS:
                 if line_context is CommitMessageContext.FOOTER:
-                    yield "Unexpected line in footers"
+                    yield "Unexpected footer '{}'.\nSupported footers: {}".format(name, FOOTERS_STRING)
                 else:
                     # Meh. Not a name we care about
                     return

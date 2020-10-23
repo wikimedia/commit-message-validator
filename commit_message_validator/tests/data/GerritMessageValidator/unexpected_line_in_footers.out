@@ -1,6 +1,7 @@
 commit-message-validator v%version%
 Using GerritMessageValidator to check the commit message
 The following errors were found:
-Line 6: Unexpected line in footers
+Line 6: Unexpected footer 'Err'.
+Supported footers: %known_gerrit_footers%
 Please review <https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines>
 and update your commit message accordingly
