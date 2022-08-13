@@ -30,7 +30,7 @@ from commit_message_validator.validators.GerritMessageValidator import (
 from commit_message_validator.validators.GitHubMessageValidator import (
     GitHubMessageValidator)
 
-__version__ = '0.7.0'
+__version__ = '1.0.0'
 
 
 WIKIMEDIA_GERRIT_URL = 'gerrit.wikimedia.org'
