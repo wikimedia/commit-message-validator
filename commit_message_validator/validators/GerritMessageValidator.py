@@ -17,6 +17,7 @@ CORRECT_FOOTERS = [
     'Change-Id',
     'Co-Authored-by',
     'Depends-On',
+    'Needed-By',
     'Hosts',  # Wikimedia puppet-compiler
     'Requested-by',
     'Reported-by',
@@ -72,6 +73,7 @@ class GerritMessageValidator(GlobalMessageValidator):
     - Footer lines ("Foo: ...") are capitalized and have a space after the ':'
     - "Bug: " is followed by one task id ("Tnnnn")
     - "Depends-On:" is followed by one change id ("I...")
+    - "Needed-By:" is followed by one change id ("I...")
     - "Change-Id:" is followed one change id ("I...")
     - No "Task: ", "Fixes: ", "Closes: " lines
     """
@@ -134,6 +136,10 @@ class GerritMessageValidator(GlobalMessageValidator):
             elif normalized_name == 'depends-on':
                 if not is_valid_change_id(value):
                     yield "Depends-On: value must be a single Gerrit change id"
+
+            elif normalized_name == 'needed-by':
+                if not is_valid_change_id(value):
+                    yield "Needed-By: value must be a single Gerrit change id"
 
             elif normalized_name == 'change-id':
                 if not is_valid_change_id(value):
