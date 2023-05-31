@@ -17,10 +17,10 @@ CORRECT_FOOTERS = [
     'Change-Id',
     'Co-Authored-by',
     'Depends-On',
-    'Needed-By',
     'Hosts',  # Wikimedia puppet-compiler
-    'Requested-by',
+    'Needed-By',
     'Reported-by',
+    'Requested-by',
     'Reviewed-by',
     'Signed-off-by',
     'Suggested-by',
