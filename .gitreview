@@ -1,6 +1,0 @@
-[gerrit]
-host=gerrit.wikimedia.org
-port=29418
-project=integration/commit-message-validator.git
-defaultbranch=master
-defaultrebase=0
