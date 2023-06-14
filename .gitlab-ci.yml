@@ -1,0 +1,33 @@
+stages:
+  - test
+
+variables:
+  PYTHONUNBUFFERED: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+test:tox:
+  stage: test
+  image: python:$PYTHON_VERSION
+  parallel:
+    matrix:
+      - PYTHON_VERSION:
+        - "3.7"
+        - "3.8"
+        - "3.9"
+        - "3.10"
+        - "3.11"
+  cache:
+    key: pip-$PYTHON_VERSION
+    paths:
+      - .cache/pip
+  script:
+    - python3 --version
+    - python3 -m pip install --upgrade pip wheel tox
+    - tox
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: dist/coverage.xml
+  coverage: /(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/
