@@ -4,23 +4,23 @@ from setuptools import setup
 from commit_message_validator import __version__
 
 setup(
-    name='commit-message-validator',
+    name="commit-message-validator",
     version=__version__,
-    author='Bryan Davis',
-    author_email='bd808@wikimedia.org',
-    url='https://www.mediawiki.org/wiki/commit-message-validator',
-    license='GPL-2.0-or-later',
-    description='Validate the format of a commit message to Wikimedia Gerrit standards',
-    long_description=open('README').read(),
+    author="Bryan Davis",
+    author_email="bd808@wikimedia.org",
+    url="https://www.mediawiki.org/wiki/commit-message-validator",
+    license="GPL-2.0-or-later",
+    description="Validate the format of a commit message to Wikimedia Gerrit standards",
+    long_description=open("README").read(),
     packages=[
-        'commit_message_validator',
-        'commit_message_validator.validators',
+        "commit_message_validator",
+        "commit_message_validator.validators",
     ],
-    python_requires='>= 3.6',
+    python_requires=">= 3.6",
     install_requires=[],
     entry_points={
-        'console_scripts': [
-            'commit-message-validator = commit_message_validator:main'
+        "console_scripts": [
+            "commit-message-validator = commit_message_validator:main",
         ],
-    }
+    },
 )

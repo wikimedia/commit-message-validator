@@ -44,7 +44,8 @@ https://phabricator.wikimedia.org/tag/commit-message-validator/.
 License
 -------
 
-Licensed under the `GPL-2.0-or-later`_ license. See COPYING_ for the full license.
+Licensed under the `GPL-2.0-or-later`_ license. See COPYING_ for the full
+license.
 
 .. _Wikimedia commit message guidelines: https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines
 .. _CONTRIBUTING.rst: https://gitlab.wikimedia.org/repos/ci-tools/commit-message-validator/-/blob/main/CONTRIBUTING.rst

@@ -1,12 +1,13 @@
 import re
 
 from commit_message_validator.validators.GlobalMessageValidator import (
-    GlobalMessageValidator)
+    GlobalMessageValidator,
+)
 
-RE_GITHUB_ISSUE_NUMBER = re.compile(r'#\d+')
+RE_GITHUB_ISSUE_NUMBER = re.compile(r"#\d+")
 RE_GITHUB_CLOSE_ISSUE_IN_DIFFERENT_REPO = re.compile(
-    r'^(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+\S+/\S+#\d+',
-    re.IGNORECASE
+    r"^(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+\S+/\S+#\d+",
+    re.IGNORECASE,
 )
 
 
@@ -34,4 +35,5 @@ class GitHubMessageValidator(GlobalMessageValidator):
         if RE_GITHUB_CLOSE_ISSUE_IN_DIFFERENT_REPO.match(line):
             yield (
                 'Do not write "closing issue keywords" for closing an issue '
-                'that is in another repository')
+                "that is in another repository"
+            )

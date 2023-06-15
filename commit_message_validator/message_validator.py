@@ -46,7 +46,7 @@ class MessageValidator:
         self._lines = lines
         self._generator = self._check_generator()
 
-    def check_line(self, lineno):
+    def check_line(self, lineno):  # noqa: U100 Unused argument 'lineno'
         """
         A function that will be called to check the commit message.
 
@@ -56,8 +56,10 @@ class MessageValidator:
         :param lineno:       int, line number that's being checked right now.
         """
         raise NotImplementedError(
-            '`check_line()` should be implemented in {0}'.format(
-                type(self).__name__))
+            "`check_line()` should be implemented in {}".format(
+                type(self).__name__,
+            ),
+        )
 
     def check_global(self):
         """
@@ -67,8 +69,10 @@ class MessageValidator:
         of what error that is occured.
         """
         raise NotImplementedError(
-            "`check_global()` isn't implemented in {0}".format(
-                type(self).__name__))
+            "`check_global()` isn't implemented in {}".format(
+                type(self).__name__,
+            ),
+        )
 
     def _check_generator(self):
         """

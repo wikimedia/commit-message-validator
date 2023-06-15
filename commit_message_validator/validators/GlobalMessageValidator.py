@@ -2,7 +2,7 @@ import re
 
 from commit_message_validator.message_validator import MessageValidator
 
-RE_URL = re.compile(r'^<?https?://\S+>?$', re.IGNORECASE)
+RE_URL = re.compile(r"^<?https?://\S+>?$", re.IGNORECASE)
 RE_REVERT_SUBJECT = re.compile('^Revert ".*"$')
 
 

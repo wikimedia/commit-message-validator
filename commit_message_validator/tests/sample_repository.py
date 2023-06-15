@@ -25,9 +25,11 @@ def main():
     if len(sys.argv) == 3:
         num = sys.argv[2]
     else:
-        num = '10'
+        num = "10"
     os.chdir(repo)
-    sha1s = cmv.check_output(['git', 'log', '--format=%H', '--no-merges', '-n' + num]).splitlines()
+    sha1s = cmv.check_output(
+        ["git", "log", "--format=%H", "--no-merges", "-n" + num],
+    ).splitlines()
     good = 0
     bad = 0
     for sha1 in sha1s:
@@ -37,17 +39,20 @@ def main():
             sys.stdout = out
             exit_code = cmv.validate(sha1)
             if exit_code != 0:
-                saved_stdout.write('Fail: ' + sha1 + '\n')
-                saved_stdout.write(out.getvalue() + '\n')
+                saved_stdout.write("Fail: " + sha1 + "\n")
+                saved_stdout.write(out.getvalue() + "\n")
                 bad += 1
             else:
-                saved_stdout.write('Pass: ' + sha1 + '\n')
+                saved_stdout.write("Pass: " + sha1 + "\n")
                 good += 1
         finally:
             sys.stdout = saved_stdout
-    bad_percent = '{:.2%}'.format(bad/(bad+good))
-    print('commit-message-validator identified that %s commits failed validation.' % bad_percent)
+    bad_percent = f"{bad/(bad+good):.2%}"
+    print(
+        "commit-message-validator identified that %s commits failed validation."
+        % bad_percent,
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
