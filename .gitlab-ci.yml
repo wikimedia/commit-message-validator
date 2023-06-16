@@ -1,5 +1,6 @@
 stages:
   - test
+  - package
 
 variables:
   PYTHONUNBUFFERED: "1"
@@ -31,3 +32,18 @@ test:tox:
         coverage_format: cobertura
         path: dist/coverage.xml
   coverage: /(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/
+
+package:pypi:
+  stage: package
+  image: python:3.11
+  only:
+    - tags
+  needs:
+    - "test:tox"
+  script:
+    - python3 -m pip install --upgrade pip wheel build twine
+    - python3 -m build
+    - twine upload --non-interactive dist/*
+    # Set these envvars in [settings] > [ci/cd] > [variables]:
+    # - TWINE_USERNAME: __token__
+    # - TWINE_PASSWORD: pypi-...
