@@ -32,9 +32,6 @@ from commit_message_validator.validators.GitHubMessageValidator import (
     GitHubMessageValidator,
 )
 
-__version__ = "1.0.0"
-
-
 WIKIMEDIA_GERRIT_URL = "gerrit.wikimedia.org"
 GERRIT_CHECK_FAIL_MESSAGE_SUGGESTION = (
     "Please review "
@@ -102,7 +99,7 @@ def check_message(lines, validator_cls=GerritMessageValidator):
     """
     errors = [f"Line {lineno}: {error}" for lineno, error in validator_cls(lines)]
 
-    print("commit-message-validator v%s" % __version__)
+    print("commit-message-validator")
     print(
         "Using {} to check the commit message".format(
             validator_cls.__name__,

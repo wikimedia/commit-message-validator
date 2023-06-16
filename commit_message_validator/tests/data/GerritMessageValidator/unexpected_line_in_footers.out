@@ -1,4 +1,4 @@
-commit-message-validator v%version%
+commit-message-validator
 Using GerritMessageValidator to check the commit message
 The following errors were found:
 Line 6: Unexpected footer 'Err'.
