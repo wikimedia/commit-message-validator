@@ -1,6 +1,77 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = [
+    "hatchling>=1.13",
+    "hatch-vcs>=0.3",
+]
+
+[project]
+name = "commit-message-validator"
+description = "Validate the format of a commit message to Wikimedia Gerrit standards"
+readme = "README.rst"
+keywords = [
+    "gerrit",
+    "git",
+    "lint",
+    "wikimedia",
+]
+license = "GPL-2.0-or-later"
+maintainers = [
+    { name = "Bryan Davis", email = "bd808@wikimedia.org" },
+    { name = "Kunal Mehta", email = "Legoktm@debian.org" },
+]
+authors = [
+    { name = "Bryan Davis", email = "bd808@wikimedia.org" },
+    { name = "Kunal Mehta", email = "Legoktm@debian.org" },
+]
+requires-python = ">=3.6"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Software Development :: Version Control :: Git",
+]
+dynamic = [
+    "version",
+]
+dependencies = []
+
+[project.urls]
+Documentation = "https://www.mediawiki.org/wiki/commit-message-validator"
+"Bug tracker" = "https://phabricator.wikimedia.org/tag/commit-message-validator/"
+"Source code" = "https://gitlab.wikimedia.org/repos/ci-tools/commit-message-validator"
+
+[project.scripts]
+commit-message-validator = "commit_message_validator:main"
+
+[tool.hatch]
+build.dev-mode-dirs = ["commit_message_validator"]
+build.targets.sdist.include = [
+    "/commit_message_validator",
+    "/CONTRIBUTING.rst",
+    "/COPYING",
+    "/README.rst",
+    "/tox.ini",
+]
+
+[tool.hatch.version]
+source = "vcs"
+
 [tool.black]
 line_length = 88
-target_version = ["py36"]
+target_version = ["py36", "py37", "py38", "py39", "py310", "py311"]
 
 [tool.isort]
 src_paths = ["commit_message_validator"]

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import io
 import os
 import re
 import sys
@@ -13,12 +14,6 @@ from commit_message_validator.validators.GerritMessageValidator import (
 from commit_message_validator.validators.GitHubMessageValidator import (
     GitHubMessageValidator,
 )
-
-if sys.version_info[0] > 2:
-    from io import StringIO
-else:
-    from StringIO import StringIO
-
 
 MESSAGE_VALIDATOR_MAP = {
     "GerritMessageValidator": GerritMessageValidator,
@@ -85,7 +80,7 @@ def test_validator(
 ):
     saved_stdout = sys.stdout
     try:
-        out = StringIO()
+        out = io.StringIO()
         sys.stdout = out
         exit_code = cmv.check_message(
             msg.splitlines(),
