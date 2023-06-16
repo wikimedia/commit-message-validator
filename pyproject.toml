@@ -50,6 +50,7 @@ dependencies = []
 
 [project.urls]
 Documentation = "https://www.mediawiki.org/wiki/commit-message-validator"
+Changelog = "https://gitlab.wikimedia.org/repos/ci-tools/commit-message-validator/-/blob/main/HISTORY.rst"
 "Bug tracker" = "https://phabricator.wikimedia.org/tag/commit-message-validator/"
 "Source code" = "https://gitlab.wikimedia.org/repos/ci-tools/commit-message-validator"
 
