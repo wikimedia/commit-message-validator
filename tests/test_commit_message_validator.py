@@ -8,12 +8,8 @@ import sys
 import pytest
 
 import commit_message_validator as cmv
-from commit_message_validator.validators.GerritMessageValidator import (
-    GerritMessageValidator,
-)
-from commit_message_validator.validators.GitHubMessageValidator import (
-    GitHubMessageValidator,
-)
+from commit_message_validator.validators import GerritMessageValidator
+from commit_message_validator.validators import GitHubMessageValidator
 
 MESSAGE_VALIDATOR_MAP = {
     "GerritMessageValidator": GerritMessageValidator,
@@ -54,7 +50,7 @@ def generate_tests():
                     with open(fn + ".out") as out:
                         out_text = out.read().replace(
                             "%known_gerrit_footers%",
-                            cmv.validators.GerritMessageValidator.FOOTERS_STRING,
+                            cmv.validators.gerrit.FOOTERS_STRING,
                         )
                         yield (
                             msg.read(),

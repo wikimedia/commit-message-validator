@@ -1,12 +1,12 @@
 import re
 
-from commit_message_validator.message_validator import MessageValidator
+from .abstract import MessageValidator
 
 RE_URL = re.compile(r"^<?https?://\S+>?$", re.IGNORECASE)
 RE_REVERT_SUBJECT = re.compile('^Revert ".*"$')
 
 
-class GlobalMessageValidator(MessageValidator):
+class BasicMessageValidator(MessageValidator):
     """
     An iterator to validate all remote repo commit message.
 

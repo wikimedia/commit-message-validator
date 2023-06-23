@@ -1,8 +1,6 @@
 import re
 
-from commit_message_validator.validators.GlobalMessageValidator import (
-    GlobalMessageValidator,
-)
+from .basic import BasicMessageValidator
 
 RE_GITHUB_ISSUE_NUMBER = re.compile(r"#\d+")
 RE_GITHUB_CLOSE_ISSUE_IN_DIFFERENT_REPO = re.compile(
@@ -11,7 +9,7 @@ RE_GITHUB_CLOSE_ISSUE_IN_DIFFERENT_REPO = re.compile(
 )
 
 
-class GitHubMessageValidator(GlobalMessageValidator):
+class GitHubMessageValidator(BasicMessageValidator):
     """
     An iterator to validate GitHub remote repo commit message.
 

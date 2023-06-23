@@ -1,9 +1,4 @@
-from commit_message_validator.validators.GerritMessageValidator import (
-    CommitMessageContext,
-)
-from commit_message_validator.validators.GerritMessageValidator import (
-    GerritMessageValidator,
-)
+from commit_message_validator.validators import GerritMessageValidator
 
 
 def test_context_handler():
@@ -18,11 +13,11 @@ def test_context_handler():
     gerrit_mv = GerritMessageValidator(lines)
 
     expected_result = [
-        CommitMessageContext.HEADER,
-        CommitMessageContext.BODY,
-        CommitMessageContext.BODY,
-        CommitMessageContext.BODY,
-        CommitMessageContext.FOOTER,
+        GerritMessageValidator.MessageContext.HEADER,
+        GerritMessageValidator.MessageContext.BODY,
+        GerritMessageValidator.MessageContext.BODY,
+        GerritMessageValidator.MessageContext.BODY,
+        GerritMessageValidator.MessageContext.FOOTER,
     ]
 
     result = [gerrit_mv.get_context(lineno) for lineno in range(len(lines))]

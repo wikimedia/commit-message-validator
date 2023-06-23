@@ -1,6 +1,6 @@
 import pytest
 
-from commit_message_validator.message_validator import MessageValidator
+from commit_message_validator.validators import MessageValidator
 
 
 class NoCheckLineMessageValidator(MessageValidator):

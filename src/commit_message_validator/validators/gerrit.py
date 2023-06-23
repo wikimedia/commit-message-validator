@@ -1,6 +1,6 @@
 import re
 
-from .GlobalMessageValidator import GlobalMessageValidator
+from .basic import BasicMessageValidator
 
 RE_CHERRYPICK = re.compile(r"^\(cherry picked from commit [0-9a-fA-F]{40}\)$")
 RE_GERRIT_CHANGEID = re.compile("^I[a-f0-9]{40}$")
@@ -58,13 +58,7 @@ def is_valid_change_id(s):
     return RE_GERRIT_CHANGEID.match(s)
 
 
-class CommitMessageContext:
-    HEADER = 1
-    BODY = 2
-    FOOTER = 3
-
-
-class GerritMessageValidator(GlobalMessageValidator):
+class GerritMessageValidator(BasicMessageValidator):
     """
     An iterator to validate Gerrit remote repo commit message.
 
@@ -79,6 +73,11 @@ class GerritMessageValidator(GlobalMessageValidator):
     - "Change-Id:" is followed one change id ("I...")
     - No "Task: ", "Fixes: ", "Closes: " lines
     """
+
+    class MessageContext:
+        HEADER = 1
+        BODY = 2
+        FOOTER = 3
 
     def __init__(self, lines):
         """
@@ -98,13 +97,12 @@ class GerritMessageValidator(GlobalMessageValidator):
         line_context = self.get_context(lineno)
         line = self._lines[lineno]
 
-        if (
-            line_context is CommitMessageContext.HEADER
-            and RE_SUBJECT_BUG_OR_TASK.match(line)
+        if line_context is self.MessageContext.HEADER and RE_SUBJECT_BUG_OR_TASK.match(
+            line,
         ):
             yield "Do not define bug in the header"
 
-        if not line and line_context is CommitMessageContext.FOOTER:
+        if not line and line_context is self.MessageContext.FOOTER:
             yield "Unexpected blank line"
 
         gerrit_footer_match = RE_GERRIT_FOOTER.match(line)
@@ -119,12 +117,12 @@ class GerritMessageValidator(GlobalMessageValidator):
                 normalized_name = BAD_FOOTERS[normalized_name]
 
             if normalized_name not in FOOTERS:
-                if line_context is CommitMessageContext.FOOTER:
+                if line_context is self.MessageContext.FOOTER:
                     yield f"Unexpected footer '{name}'.\nSupported footers: {FOOTERS_STRING}"
                 else:
                     # Meh. Not a name we care about
                     return
-            elif line_context is not CommitMessageContext.FOOTER:
+            elif line_context is not self.MessageContext.FOOTER:
                 yield f"Expected '{name}:' to be in footer"
 
             correct_name = FOOTERS.get(normalized_name)
@@ -166,7 +164,7 @@ class GerritMessageValidator(GlobalMessageValidator):
             if ws != " ":
                 yield "Expected one space after '%s:'" % name
 
-        elif line and line_context is CommitMessageContext.FOOTER:
+        elif line and line_context is self.MessageContext.FOOTER:
             # if it wasn't a footer (not a match) but it is in the footers
             cherry_pick = RE_CHERRYPICK.match(line)
             if cherry_pick:
@@ -186,12 +184,12 @@ class GerritMessageValidator(GlobalMessageValidator):
         Get the context of the current line.
 
         :param lineno: Line number that the context will be checked.
-        :return:       A `CommitMessageContext` enum.
+        :return:       A `MessageContext` enum.
         """
         if lineno == 0:
             # First line in the commit message is HEADER.
-            self._commit_message_context = CommitMessageContext.HEADER
-        elif self._commit_message_context is not CommitMessageContext.FOOTER:
+            self._commit_message_context = self.MessageContext.HEADER
+        elif self._commit_message_context is not self.MessageContext.FOOTER:
             line = self._lines[lineno]
             footer_match = RE_GERRIT_FOOTER.match(line)
             cherrypick_match = RE_CHERRYPICK.match(line)
@@ -205,8 +203,8 @@ class GerritMessageValidator(GlobalMessageValidator):
                 # or it's a cherry pick
                 # and the previous line is a blank line.
                 # Mark the current line until the end as FOOTER.
-                self._commit_message_context = CommitMessageContext.FOOTER
+                self._commit_message_context = self.MessageContext.FOOTER
             else:
-                self._commit_message_context = CommitMessageContext.BODY
+                self._commit_message_context = self.MessageContext.BODY
 
         return self._commit_message_context

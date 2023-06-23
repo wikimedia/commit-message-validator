@@ -25,12 +25,8 @@ import os
 import subprocess
 import sys
 
-from commit_message_validator.validators.GerritMessageValidator import (
-    GerritMessageValidator,
-)
-from commit_message_validator.validators.GitHubMessageValidator import (
-    GitHubMessageValidator,
-)
+from .validators import GerritMessageValidator
+from .validators import GitHubMessageValidator
 
 WIKIMEDIA_GERRIT_URL = "gerrit.wikimedia.org"
 GERRIT_CHECK_FAIL_MESSAGE_SUGGESTION = (
