@@ -1,3 +1,4 @@
+from enum import Enum
 import re
 
 from .basic import BasicMessageValidator
@@ -74,7 +75,7 @@ class GerritMessageValidator(BasicMessageValidator):
     - No "Task: ", "Fixes: ", "Closes: " lines
     """
 
-    class MessageContext:
+    class MessageContext(Enum):
         HEADER = 1
         BODY = 2
         FOOTER = 3
