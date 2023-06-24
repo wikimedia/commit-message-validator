@@ -56,6 +56,7 @@ Changelog = "https://gitlab.wikimedia.org/repos/ci-tools/commit-message-validato
 
 [project.scripts]
 commit-message-validator = "commit_message_validator:main"
+sample-repository = "commit_message_validator.sample:main"
 
 [tool.hatch]
 build.dev-mode-dirs = ["src"]

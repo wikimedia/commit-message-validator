@@ -19,39 +19,51 @@
 Runs through the provided git repo and samples the commit messages to see
 whether they would pass the commit message validator.
 """
-
+import argparse
+import io
 import os
 import sys
 
-import commit_message_validator as cmv
-
-if sys.version_info[0] > 2:
-    from io import StringIO
-else:
-    from StringIO import StringIO
+from . import validate
+from .utils import check_output
 
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: tox -e sample /path/to/git/repo [count]")
-        sys.exit(1)
-    repo = sys.argv[1]
-    if len(sys.argv) == 3:
-        num = sys.argv[2]
-    else:
-        num = "10"
-    os.chdir(repo)
-    sha1s = cmv.check_output(
-        ["git", "log", "--format=%H", "--no-merges", "-n" + num],
+    parser = argparse.ArgumentParser(
+        prog="sample-repository",
+        description="Sample commits in a repo to see if they pass validation",
+    )
+    parser.add_argument(
+        "repo",
+        help="Path to git repo to check",
+        metavar="/path/to/git/repo",
+    )
+    parser.add_argument(
+        "count",
+        help="Number of commits to sample",
+        default=10,
+        type=int,
+        nargs="?",
+    )
+    args = parser.parse_args()
+
+    os.chdir(args.repo)
+    sha1s = check_output(
+        "git",
+        "log",
+        "--format=%H",
+        "--no-merges",
+        f"-n{args.count}",
     ).splitlines()
+
     good = 0
     bad = 0
     for sha1 in sha1s:
         saved_stdout = sys.stdout
         try:
-            out = StringIO()
+            out = io.StringIO()
             sys.stdout = out
-            exit_code = cmv.validate(sha1)
+            exit_code = validate(sha1)
             if exit_code != 0:
                 saved_stdout.write("Fail: " + sha1 + "\n")
                 saved_stdout.write(out.getvalue() + "\n")

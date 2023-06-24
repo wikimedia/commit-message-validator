@@ -20,7 +20,6 @@ Validate the format of a commit message to Wikimedia Gerrit standards.
 
 https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines
 """
-
 import os
 import sys
 
