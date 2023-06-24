@@ -49,14 +49,22 @@ def get_message_validator_class():
     result = None
     if os.path.exists(".gitreview") and os.path.isfile(".gitreview"):
         result = check_output(
-            ["git", "config", "-f", ".gitreview", "--get", "gerrit.host"],
+            "git",
+            "config",
+            "-f",
+            ".gitreview",
+            "--get",
+            "gerrit.host",
         )
 
     if result and WIKIMEDIA_GERRIT_URL in result:
         return GerritMessageValidator
     else:
         result = check_output(
-            ["git", "config", "--get-regex", "^remote.*.url$"],
+            "git",
+            "config",
+            "--get-regex",
+            "^remote.*.url$",
         )
 
         remotes = result.splitlines()
@@ -139,25 +147,21 @@ def ansi_codes():
     try:
         # Ask git if colors should be used
         # Raises CalledProcessError if disabled
-        subprocess.check_output(
-            [
-                "git",
-                "config",
-                "--get-colorbool",
-                "color.commit_message_validator",
-                stdout_is_tty,
-            ],
+        check_output(
+            "git",
+            "config",
+            "--get-colorbool",
+            "color.commit_message_validator",
+            stdout_is_tty,
         )
         # Get configured color code (default to red text)
         return (
             check_output(
-                [
-                    "git",
-                    "config",
-                    "--get-color",
-                    "color.commit_message_validator.error",
-                    "red",
-                ],
+                "git",
+                "config",
+                "--get-color",
+                "color.commit_message_validator.error",
+                "red",
             ),
             "\x1b[0m",
         )
@@ -165,7 +169,7 @@ def ansi_codes():
         return "", ""
 
 
-def check_output(args):
+def check_output(*args):
     """Wrapper around subprocess to handle Python 3"""
     return subprocess.check_output(args).decode("utf8")
 
@@ -176,7 +180,11 @@ def validate(commit_id="HEAD"):
     # We do this by telling if it has multiple parents
     parents = (
         check_output(
-            ["git", "log", "--format=%P", commit_id, "-n1"],
+            "git",
+            "log",
+            "--format=%P",
+            commit_id,
+            "-n1",
         )
         .strip()
         .split(" ")
@@ -188,7 +196,12 @@ def validate(commit_id="HEAD"):
         commit_id = commit_id
 
     commit = check_output(
-        ["git", "log", "--format=%B", "--no-color", commit_id, "-n1"],
+        "git",
+        "log",
+        "--format=%B",
+        "--no-color",
+        commit_id,
+        "-n1",
     )
     lines = commit.splitlines()
     # last line is sometimes an empty line
@@ -204,7 +217,7 @@ def install():
     if os.name == "nt":  # T184845
         cmd = cmd.replace("\\", "/")
     print("Will install a git hook that runs: %s" % cmd)
-    git_dir = check_output(["git", "rev-parse", "--git-dir"]).strip()
+    git_dir = check_output("git", "rev-parse", "--git-dir").strip()
     path = os.path.join(git_dir, "hooks", "post-commit")
     if os.path.exists(path):
         # Check to see if it's already installed
@@ -224,7 +237,7 @@ def install():
     # Doesn't exist, we need to create a hook and make it +x
     with open(path, "w") as f:
         f.write("#!/bin/sh\n" + cmd + "\n")
-    subprocess.check_call(["chmod", "+x", path])
+    check_output("chmod", "+x", path)
     return 0
 
 
