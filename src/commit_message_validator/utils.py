@@ -61,5 +61,5 @@ def ansi_codes():
             ),
             "\x1b[0m",
         )
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError:  # pragma: no cover
         return "", ""
