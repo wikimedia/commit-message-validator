@@ -44,7 +44,8 @@ def generate_tests():
     create a test for this pair where the `.msg` is the commit message and the
     `.out` is the expected output.
 
-    Filenames for tests that will pass validation must end with 'ok'.
+    Filenames for tests that will pass validation must end with 'ok' and can
+    omit an explict '.out' file.
     """
     base_path = os.path.join(
         os.path.dirname(__file__),
@@ -59,10 +60,23 @@ def generate_tests():
         for fn in os.listdir(specific_message_validator_test_path):
             test, _, extension = fn.rpartition(".")
             fn = os.path.join(specific_message_validator_test_path, test)
-            if extension == "msg" and os.path.isfile(fn + ".out"):
+            if extension == "msg":
                 exit_code = 0 if fn.endswith("ok") else 1
                 with open(fn + ".msg") as msg:
-                    with open(fn + ".out") as out:
+                    out_fn = fn + ".out"
+                    if not os.path.isfile(out_fn):
+                        if exit_code == 0:
+                            out_fn = os.path.join(
+                                specific_message_validator_test_path,
+                                "ok.out",
+                            )
+                        else:
+                            pytest.fail(
+                                "No .out file found for {}.msg".format(
+                                    os.path.relpath(fn, base_path),
+                                ),
+                            )
+                    with open(out_fn) as out:
                         out_text = out.read().replace(
                             "%known_gerrit_footers%",
                             cmv.validators.gerrit.FOOTERS_STRING,
