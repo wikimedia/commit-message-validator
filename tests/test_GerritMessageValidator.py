@@ -20,7 +20,7 @@ from commit_message_validator.validators import GerritMessageValidator
 
 def test_context_handler():
     lines = [
-        "Commit header",
+        "Commit subject",
         "",
         "Commit body message",
         "",
@@ -30,7 +30,7 @@ def test_context_handler():
     gerrit_mv = GerritMessageValidator(lines)
 
     expected_result = [
-        GerritMessageValidator.MessageContext.HEADER,
+        GerritMessageValidator.MessageContext.SUBJECT,
         GerritMessageValidator.MessageContext.BODY,
         GerritMessageValidator.MessageContext.BODY,
         GerritMessageValidator.MessageContext.BODY,

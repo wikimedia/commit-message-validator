@@ -1,6 +1,6 @@
 commit-message-validator
 Using GerritMessageValidator to check the commit message
 The following errors were found:
-Line 1: Do not define bug in the header
+Line 1: Do not define bug in the subject
 Please review <https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines>
 and update your commit message accordingly

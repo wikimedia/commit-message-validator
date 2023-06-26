@@ -93,7 +93,7 @@ class GerritMessageValidator(BasicMessageValidator):
     """
 
     class MessageContext(Enum):
-        HEADER = 1
+        SUBJECT = 1
         BODY = 2
         FOOTER = 3
 
@@ -115,10 +115,13 @@ class GerritMessageValidator(BasicMessageValidator):
         line_context = self.get_context(lineno)
         line = self._lines[lineno]
 
-        if line_context is self.MessageContext.HEADER and RE_SUBJECT_BUG_OR_TASK.match(
-            line,
+        if (
+            line_context is self.MessageContext.SUBJECT
+            and RE_SUBJECT_BUG_OR_TASK.match(
+                line,
+            )
         ):
-            yield "Do not define bug in the header"
+            yield "Do not define bug in the subject"
 
         if not line and line_context is self.MessageContext.FOOTER:
             yield "Unexpected blank line"
@@ -205,8 +208,8 @@ class GerritMessageValidator(BasicMessageValidator):
         :return:       A `MessageContext` enum.
         """
         if lineno == 0:
-            # First line in the commit message is HEADER.
-            self._commit_message_context = self.MessageContext.HEADER
+            # First line in the commit message is subject.
+            self._commit_message_context = self.MessageContext.SUBJECT
         elif self._commit_message_context is not self.MessageContext.FOOTER:
             line = self._lines[lineno]
             footer_match = RE_GERRIT_FOOTER.match(line)
