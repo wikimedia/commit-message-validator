@@ -3,6 +3,7 @@ UNRELEASED
 * Support "Needed-By:" as a backlink to "Depends-On:" (Daniel Kinzler)
 * Alphasort CORRECT_FOOTERS (Sam Reed)
 * Convert packaging to hatchling backend (Bryan Davis)
+* Introduce RulesMessageValidator (Bryan Davis)
 
 1.0.0
 -----

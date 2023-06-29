@@ -17,38 +17,49 @@
 # Commit Message Validator.  If not, see <http://www.gnu.org/licenses/>.
 import re
 
-from .basic import BasicMessageValidator
+from .rules import BodyMaxLength
+from .rules import CommitSecondLineEmpty
+from .rules import LineRegexNoMatchRule
+from .rules import MessageContext
+from .rules import RulesMessageValidator
+from .rules import SubjectMaxLength
 
-RE_GITHUB_ISSUE_NUMBER = re.compile(r"#\d+")
-RE_GITHUB_CLOSE_ISSUE_IN_DIFFERENT_REPO = re.compile(
-    r"^(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+\S+/\S+#\d+",
-    re.IGNORECASE,
-)
+
+class GitHubSubjectNoBugNumber(LineRegexNoMatchRule):
+    id = "GH1"
+    name = "github-subject-no-bug-number"
+    ctx = MessageContext.SUBJECT
+    regex = re.compile(r"#\d+")
+    # FIXME: use 'subject' consitently
+    msg = "Do not define bug in the header"
 
 
-class GitHubMessageValidator(BasicMessageValidator):
-    """
-    An iterator to validate GitHub remote repo commit message.
+class GitHubNoForeignClose(LineRegexNoMatchRule):
+    id = "GH2"
+    name = "github-no-foreign-close"
+    ctx = MessageContext.BODY
+    regex = re.compile(
+        r"^(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+\S+/\S+#\d+",
+        re.IGNORECASE,
+    )
+    msg = (
+        'Do not write "closing issue keywords" for closing an issue '
+        "that is in another repository"
+    )
 
-    Checks:
-    - First line <=80 characters or /^Revert ".*"$/
-    - Second line blank
-    - No line >100 characters (unless it is only a URL)
-    - Issue should not be defined in the header
-    - "Closing issue keywords" for closing an issue that is in another
-    repository shouldn't be exist.
-    """
 
-    def check_line(self, lineno):
-        yield from super().check_line(lineno)
+class GitHubMessageValidator(RulesMessageValidator):
+    """Validate a GitHub remote repo commit message."""
 
-        line = self._lines[lineno]
-
-        if lineno == 0 and RE_GITHUB_ISSUE_NUMBER.findall(line):
-            yield "Do not define bug in the header"
-
-        if RE_GITHUB_CLOSE_ISSUE_IN_DIFFERENT_REPO.match(line):
-            yield (
-                'Do not write "closing issue keywords" for closing an issue '
-                "that is in another repository"
-            )
+    def __init__(self):
+        super().__init__(
+            line_rules=[
+                SubjectMaxLength(),
+                BodyMaxLength(),
+                GitHubSubjectNoBugNumber(),
+                GitHubNoForeignClose(),
+            ],
+            commit_rules=[
+                CommitSecondLineEmpty(),
+            ],
+        )

@@ -15,12 +15,16 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # Commit Message Validator.  If not, see <http://www.gnu.org/licenses/>.
-from .abstract import MessageValidator
+from .core import MessageValidator
+from .core import ValidationFailure
 from .gerrit import GerritMessageValidator
 from .github import GitHubMessageValidator
+from .rules import RulesMessageValidator
 
 __ALL__ = (
     GerritMessageValidator,
     GitHubMessageValidator,
     MessageValidator,
+    RulesMessageValidator,
+    ValidationFailure,
 )

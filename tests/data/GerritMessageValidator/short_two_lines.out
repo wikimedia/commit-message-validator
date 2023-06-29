@@ -2,7 +2,7 @@ commit-message-validator
 Using GerritMessageValidator to check the commit message
 The following errors were found:
 Line 2: Second line should be empty
-Line 2: Expected 'Change-Id:' to be in footer
 Line 2: Expected at least 3 lines
+Line 2: Expected 'Change-Id:' to be in footer
 Please review <https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines>
 and update your commit message accordingly

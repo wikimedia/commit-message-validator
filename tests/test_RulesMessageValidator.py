@@ -15,10 +15,11 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # Commit Message Validator.  If not, see <http://www.gnu.org/licenses/>.
-from commit_message_validator.validators import GerritMessageValidator
+from commit_message_validator.validators import RulesMessageValidator
+from commit_message_validator.validators.rules import MessageContext
 
 
-def test_context_handler():
+def test_get_context():
     lines = [
         "Commit subject",
         "",
@@ -27,15 +28,15 @@ def test_context_handler():
         "Change-Id: I00d0f7c3b294c3ddc656f9a5447df89c63142203",
     ]
 
-    gerrit_mv = GerritMessageValidator(lines)
+    validator = RulesMessageValidator(expected_footers=["change-id"])
 
     expected_result = [
-        GerritMessageValidator.MessageContext.SUBJECT,
-        GerritMessageValidator.MessageContext.BODY,
-        GerritMessageValidator.MessageContext.BODY,
-        GerritMessageValidator.MessageContext.BODY,
-        GerritMessageValidator.MessageContext.FOOTER,
+        MessageContext.SUBJECT,
+        MessageContext.BODY,
+        MessageContext.BODY,
+        MessageContext.BODY,
+        MessageContext.FOOTER,
     ]
 
-    result = [gerrit_mv.get_context(lineno) for lineno in range(len(lines))]
-    assert expected_result == result
+    result = [validator.get_context(lineno, lines) for lineno in range(len(lines))]
+    assert result == expected_result

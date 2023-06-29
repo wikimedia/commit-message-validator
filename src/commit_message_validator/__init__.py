@@ -20,6 +20,7 @@ Validate the format of a commit message to Wikimedia Gerrit standards.
 
 https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines
 """
+import operator
 import os
 import sys
 
@@ -101,7 +102,10 @@ def check_message(lines, validator_cls=GerritMessageValidator):
     :return:
         An integer, used for exit code.
     """
-    errors = [f"Line {lineno}: {error}" for lineno, error in validator_cls(lines)]
+    validator = validator_cls()
+    errors = list(validator.validate(lines))
+    errors.sort(key=operator.attrgetter("rule_id"))
+    errors.sort(key=operator.attrgetter("lineno"))
 
     print("commit-message-validator")
     print(
@@ -112,8 +116,8 @@ def check_message(lines, validator_cls=GerritMessageValidator):
     if errors:
         color, reset = ansi_codes()
         print(f"{color}The following errors were found:{reset}")
-        for e in errors:
-            print(f"{color}{e}{reset}")
+        for err in errors:
+            print(f"{color}Line {err.lineno}: {err.message}{reset}")
         if validator_cls is GerritMessageValidator:
             print(
                 "{}{}{}".format(

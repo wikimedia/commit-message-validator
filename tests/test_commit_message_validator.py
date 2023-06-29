@@ -45,13 +45,19 @@ def generate_tests():
     `.out` is the expected output.
 
     Filenames for tests that will pass validation must end with 'ok' and can
-    omit an explict '.out' file.
+    omit an explict '.out' file as 'ok.out' will be assumed.
     """
     base_path = os.path.join(
         os.path.dirname(__file__),
         "data",
     )
+    footers_string = ", ".join(
+        footer for footer in cmv.validators.gerrit.EXPECTED_FOOTERS
+    )
     for message_validator_name in os.listdir(base_path):
+        if message_validator_name not in MESSAGE_VALIDATOR_MAP:
+            continue
+
         specific_message_validator_test_path = os.path.join(
             base_path,
             message_validator_name,
@@ -77,15 +83,17 @@ def generate_tests():
                                 ),
                             )
                     with open(out_fn) as out:
+                        # FIXME: footers_string is a gross hack now
                         out_text = out.read().replace(
                             "%known_gerrit_footers%",
-                            cmv.validators.gerrit.FOOTERS_STRING,
+                            footers_string,
                         )
-                        yield (
+                        yield pytest.param(
                             msg.read(),
                             out_text,
                             exit_code,
                             message_validator_name,
+                            id=os.path.relpath(fn, base_path),
                         )
 
 
@@ -109,7 +117,7 @@ def test_validator(
         )
         # Ignore ANSI escapes in output
         plain_out = RE_ESC.sub("", out.getvalue())
-        assert expected == plain_out
-        assert expected_exit_code == exit_code
+        assert plain_out == expected
+        assert exit_code == expected_exit_code
     finally:
         sys.stdout = saved_stdout
