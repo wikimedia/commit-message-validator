@@ -1,4 +1,4 @@
-This is a commit header
+This is a commit subject
 
 This is a commit body
 

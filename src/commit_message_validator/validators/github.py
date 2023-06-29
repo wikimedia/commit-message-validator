@@ -30,8 +30,7 @@ class GitHubSubjectNoBugNumber(LineRegexNoMatchRule):
     name = "github-subject-no-bug-number"
     ctx = MessageContext.SUBJECT
     regex = re.compile(r"#\d+")
-    # FIXME: use 'subject' consitently
-    msg = "Do not define bug in the header"
+    msg = "Do not define bug in the subject"
 
 
 class GitHubNoForeignClose(LineRegexNoMatchRule):

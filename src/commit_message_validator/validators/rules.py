@@ -97,7 +97,7 @@ class SubjectMaxLength(LineLengthRule):
     id = "S1"
     name = "subject-max-length"
     ctx = MessageContext.SUBJECT
-    msg = "First line should be <=80 characters"
+    msg = "Subject must be <=80 characters"
     max_len = 80
 
     RE_REVERT = re.compile(r'^Revert ".*"$')

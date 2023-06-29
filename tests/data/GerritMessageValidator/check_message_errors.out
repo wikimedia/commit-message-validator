@@ -1,7 +1,7 @@
 commit-message-validator
 Using GerritMessageValidator to check the commit message
 The following errors were found:
-Line 1: First line should be <=80 characters
+Line 1: Subject must be <=80 characters
 Line 2: Second line should be empty
 Line 3: Line exceeds max length (174>100)
 Line 4: Expected 'Fixes:' to be in footer

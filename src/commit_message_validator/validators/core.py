@@ -43,7 +43,7 @@ class MessageValidator:
 
     Example usage:
 
-    >>> lines = ['Title', 'This should be empty', 'Body']
+    >>> lines = ['Subject', 'This should be empty', 'Body']
     >>>
     >>> class AMessageValidator(MessageValidator):
     ...     def check_line(self, lineno, line):
