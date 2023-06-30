@@ -17,13 +17,15 @@
 # Commit Message Validator.  If not, see <http://www.gnu.org/licenses/>.
 from .core import MessageValidator
 from .core import ValidationFailure
-from .gerrit import GerritMessageValidator
 from .github import GitHubMessageValidator
 from .rules import RulesMessageValidator
+from .wikimedia import GerritMessageValidator
+from .wikimedia import GitLabMessageValidator
 
 __ALL__ = (
     GerritMessageValidator,
     GitHubMessageValidator,
+    GitLabMessageValidator,
     MessageValidator,
     RulesMessageValidator,
     ValidationFailure,

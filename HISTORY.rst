@@ -4,6 +4,7 @@ UNRELEASED
 * Alphasort CORRECT_FOOTERS (Sam Reed)
 * Convert packaging to hatchling backend (Bryan Davis)
 * Introduce RulesMessageValidator (Bryan Davis)
+* Add GitLabMessageValidator (Bryan Davis)
 
 1.0.0
 -----

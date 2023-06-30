@@ -28,8 +28,10 @@ from .utils import ansi_codes
 from .utils import check_output
 from .validators import GerritMessageValidator
 from .validators import GitHubMessageValidator
+from .validators import GitLabMessageValidator
 
-WIKIMEDIA_GERRIT_URL = "gerrit.wikimedia.org"
+WIKIMEDIA_GERRIT_HOST = "gerrit.wikimedia.org"
+WIKIMEDIA_GITLAB_HOST = "gitlab.wikimedia.org"
 GERRIT_CHECK_FAIL_MESSAGE_SUGGESTION = (
     "Please review "
     "<https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines>"
@@ -58,33 +60,37 @@ def get_message_validator_class():
             "gerrit.host",
         )
 
-    if result and WIKIMEDIA_GERRIT_URL in result:
+    if result and WIKIMEDIA_GERRIT_HOST in result:
         return GerritMessageValidator
+
+    if result and WIKIMEDIA_GITLAB_HOST in result:
+        return GitLabMessageValidator
+
+    result = check_output(
+        "git",
+        "config",
+        "--get-regex",
+        "^remote.*.url$",
+    )
+
+    remotes = {
+        label.split(".", maxsplit=2)[1]: url
+        for label, url in (line.split(" ", maxsplit=1) for line in result.splitlines())
+    }
+
+    if WIKIMEDIA_GERRIT_HOST in {
+        remotes.get("wikimedia"),
+        remotes.get("gerrit"),
+        remotes.get("origin"),
+    }:
+        return GerritMessageValidator
+    elif WIKIMEDIA_GITLAB_HOST in remotes.get("origin"):
+        return GitLabMessageValidator
+    elif "github.com" in remotes.get("origin"):
+        return GitHubMessageValidator
     else:
-        result = check_output(
-            "git",
-            "config",
-            "--get-regex",
-            "^remote.*.url$",
-        )
-
-        remotes = result.splitlines()
-        remote_dict = {}
-
-        for remote in remotes:
-            remote_splitted = remote.split(" ")
-            remote_dict[remote_splitted[0]] = remote_splitted[1]
-
-        if WIKIMEDIA_GERRIT_URL in {
-            remote_dict.get("remote.wikimedia.url"),
-            remote_dict.get("remote.gerrit.url"),
-        }:
-            return GerritMessageValidator
-        elif "github.com" in remote_dict.get("remote.origin.url"):
-            return GitHubMessageValidator
-        else:
-            # If there's nothing match just use GerritMessageValidator
-            return GerritMessageValidator
+        # If there's nothing match just use GerritMessageValidator
+        return GerritMessageValidator
 
 
 def check_message(lines, validator_cls=GerritMessageValidator):

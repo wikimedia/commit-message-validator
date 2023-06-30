@@ -91,3 +91,28 @@ class GerritMessageValidator(RulesMessageValidator):
             ],
             expected_footers=NORMALIZED_EXPECTED_FOOTERS,
         )
+
+
+class GitLabMessageValidator(RulesMessageValidator):
+    """Validate a GitLab remote repo commit message."""
+
+    def __init__(self):
+        super().__init__(
+            line_rules=[
+                SubjectMaxLength(),
+                SubjectNoBugOrTask(),
+                BodyMaxLength(),
+                FooterInBody(
+                    expected=NORMALIZED_EXPECTED_FOOTERS + list(BAD_FOOTERS.keys()),
+                ),
+                FooterNoBlankLines(),
+                ExpectedFooters(EXPECTED_FOOTERS, fixup=BAD_FOOTERS),
+                PhabricatorTaskIdExpected(["bug"], fixup=BAD_FOOTERS),
+                UnexpectedFooterLine(),
+            ],
+            commit_rules=[
+                CommitSecondLineEmpty(),
+                CherryPickLast(),
+            ],
+            expected_footers=NORMALIZED_EXPECTED_FOOTERS,
+        )

@@ -25,10 +25,12 @@ import pytest
 import commit_message_validator as cmv
 from commit_message_validator.validators import GerritMessageValidator
 from commit_message_validator.validators import GitHubMessageValidator
+from commit_message_validator.validators import GitLabMessageValidator
 
 MESSAGE_VALIDATOR_MAP = {
     "GerritMessageValidator": GerritMessageValidator,
     "GitHubMessageValidator": GitHubMessageValidator,
+    "GitLabMessageValidator": GitLabMessageValidator,
 }
 # Regular expression for matching ANSI escape sequences
 # https://stackoverflow.com/a/14693789/8171
@@ -52,7 +54,7 @@ def generate_tests():
         "data",
     )
     footers_string = ", ".join(
-        footer for footer in cmv.validators.gerrit.EXPECTED_FOOTERS
+        footer for footer in cmv.validators.wikimedia.EXPECTED_FOOTERS
     )
     for message_validator_name in os.listdir(base_path):
         if message_validator_name not in MESSAGE_VALIDATOR_MAP:
