@@ -29,6 +29,7 @@ from .utils import check_output
 from .validators import GerritMessageValidator
 from .validators import GitHubMessageValidator
 from .validators import GitLabMessageValidator
+from .version import __version__  # noqa: F401 imported but unused
 
 WIKIMEDIA_GERRIT_HOST = "gerrit.wikimedia.org"
 WIKIMEDIA_GITLAB_HOST = "gitlab.wikimedia.org"
