@@ -24,7 +24,7 @@ import io
 import os
 import sys
 
-from . import validate
+from .lint import validate
 from .utils import check_output
 
 

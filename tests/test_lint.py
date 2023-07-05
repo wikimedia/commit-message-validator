@@ -22,10 +22,11 @@ import sys
 
 import pytest
 
-import commit_message_validator as cmv
+from commit_message_validator.lint import check_message
 from commit_message_validator.validators import GerritMessageValidator
 from commit_message_validator.validators import GitHubMessageValidator
 from commit_message_validator.validators import GitLabMessageValidator
+from commit_message_validator.validators.wikimedia import EXPECTED_FOOTERS
 
 MESSAGE_VALIDATOR_MAP = {
     "GerritMessageValidator": GerritMessageValidator,
@@ -53,9 +54,7 @@ def generate_tests():
         os.path.dirname(__file__),
         "data",
     )
-    footers_string = ", ".join(
-        footer for footer in cmv.validators.wikimedia.EXPECTED_FOOTERS
-    )
+    footers_string = ", ".join(footer for footer in EXPECTED_FOOTERS)
     for message_validator_name in os.listdir(base_path):
         if message_validator_name not in MESSAGE_VALIDATOR_MAP:
             continue
@@ -113,7 +112,7 @@ def test_validator(
     try:
         out = io.StringIO()
         sys.stdout = out
-        exit_code = cmv.check_message(
+        exit_code = check_message(
             msg.splitlines(),
             MESSAGE_VALIDATOR_MAP[message_validator_name],
         )
