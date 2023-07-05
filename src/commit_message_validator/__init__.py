@@ -24,6 +24,7 @@ import operator
 import os
 import sys
 
+from .hooks import install
 from .utils import ansi_codes
 from .utils import check_output
 from .validators import GerritMessageValidator
@@ -174,36 +175,6 @@ def validate(commit_id="HEAD"):
         lines = lines[:-1]
 
     return check_message(lines, get_message_validator_class())
-
-
-def install():
-    """Install post-commit git hook."""
-    cmd = sys.executable + " " + __file__
-    if os.name == "nt":  # T184845
-        cmd = cmd.replace("\\", "/")
-    print("Will install a git hook that runs: %s" % cmd)
-    git_dir = check_output("git", "rev-parse", "--git-dir").strip()
-    path = os.path.join(git_dir, "hooks", "post-commit")
-    if os.path.exists(path):
-        # Check to see if it's already installed
-        with open(path) as f:
-            contents = f.read()
-        if (
-            "commit-message-validator" in contents
-            or "commit_message_validator" in contents
-        ):
-            print("commit-message-validator git hook is already installed")
-            return 1
-        # Not installed, but hook already exists.
-        with open(path, "a") as f:
-            f.write("\n" + cmd + "\n")
-        print("Installed commit-message-validator in %s" % path)
-        return 0
-    # Doesn't exist, we need to create a hook and make it +x
-    with open(path, "w") as f:
-        f.write("#!/bin/sh\n" + cmd + "\n")
-    check_output("chmod", "+x", path)
-    return 0
 
 
 def main():
