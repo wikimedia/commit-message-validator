@@ -47,6 +47,8 @@ dynamic = [
     "version",
 ]
 dependencies = [
+    "click==8.1.3",
+    "click-aliases==1.0.1",
     "importlib-metadata==6.7.0 ; python_version < \"3.8\"",
 ]
 
@@ -57,7 +59,7 @@ Changelog = "https://gitlab.wikimedia.org/repos/ci-tools/commit-message-validato
 "Source code" = "https://gitlab.wikimedia.org/repos/ci-tools/commit-message-validator"
 
 [project.scripts]
-commit-message-validator = "commit_message_validator:main"
+commit-message-validator = "commit_message_validator.cli:cli"
 sample-repository = "commit_message_validator.sample:main"
 
 [tool.hatch]

@@ -20,19 +20,8 @@ Validate the format of a commit message to Wikimedia Gerrit standards.
 
 https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines
 """
-import sys
-
-from .hooks import install
-from .lint import validate
+from .cli import cli
 from .version import __version__  # noqa: F401 imported but unused
 
-
-def main():
-    if sys.argv[-1] == "install":
-        sys.exit(install())
-    else:
-        sys.exit(validate())
-
-
 if __name__ == "__main__":  # pragma: nocover
-    main()
+    cli()
