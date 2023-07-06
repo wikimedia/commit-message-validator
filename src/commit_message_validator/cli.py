@@ -19,6 +19,7 @@ import click
 import click_aliases
 
 from .hooks import install
+from .lint import sample
 from .lint import validate
 from .version import __version__
 
@@ -47,6 +48,23 @@ def install_hook():
 def validate_message():
     """Validate commit message(s)."""
     return validate()
+
+
+@cli.command("sample")
+@click.argument(
+    "repo",
+    type=click.Path(exists=True, file_okay=False, resolve_path=True),
+)
+@click.argument("count", type=int, default=10)
+def sample_repo(repo, count):
+    """Sample commits in a repo to see if they pass validation.
+
+    \b
+    REPO is the filesystem path to the git repo to check.
+    COUNT is the number of commits to sample (default: 10).
+    """
+    click.echo(f"Checking the last {count} commits to {click.format_filename(repo)}")
+    return sample(repo, count)
 
 
 if __name__ == "__main__":

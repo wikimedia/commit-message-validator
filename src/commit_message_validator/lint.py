@@ -15,8 +15,10 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # Commit Message Validator.  If not, see <http://www.gnu.org/licenses/>.
+import io
 import operator
 import os
+import sys
 
 from .utils import ansi_codes
 from .utils import check_output
@@ -167,3 +169,34 @@ def validate(commit_id="HEAD"):
         lines = lines[:-1]
 
     return check_message(lines, get_message_validator_class())
+
+
+def sample(repo, count):
+    """Sample commits from a given repo."""
+    os.chdir(repo)
+    sha1s = check_output(
+        "git",
+        "log",
+        "--format=%H",
+        "--no-merges",
+        f"-n{count}",
+    ).splitlines()
+
+    good = 0
+    bad = 0
+    for sha1 in sha1s:
+        saved_stdout = sys.stdout
+        try:
+            out = io.StringIO()
+            sys.stdout = out
+            exit_code = validate(sha1)
+            if exit_code != 0:
+                saved_stdout.write("Fail: " + sha1 + "\n")
+                saved_stdout.write(out.getvalue() + "\n")
+                bad += 1
+            else:
+                saved_stdout.write("Pass: " + sha1 + "\n")
+                good += 1
+        finally:
+            sys.stdout = saved_stdout
+    print(f"{bad/(bad+good):.2%} commits failed validation.")
