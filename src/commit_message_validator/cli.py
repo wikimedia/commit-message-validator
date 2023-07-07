@@ -41,9 +41,10 @@ def cli(ctx):
 
 
 @cli.command("install-hook", aliases=["install"])
-def install_hook():
+@click.pass_context
+def install_hook(ctx):
     """Install commit-message-validator as a git post-commit hook."""
-    return install()
+    ctx.exit(install())
 
 
 @cli.command("validate", aliases=["lint"])
@@ -83,9 +84,10 @@ def install_hook():
     envvar=["CI_COMMIT_SHA", "GITHUB_SHA", "GIT_COMMIT"],
     help="Head of current branch.",
 )
-def validate_message(validator=None, merge_target=None, head=None):
+@click.pass_context
+def validate_message(ctx, validator=None, merge_target=None, head=None):
     """Validate commit message(s)."""
-    return validate(start_ref=head, end_ref=merge_target, validator=validator)
+    ctx.exit(validate(start_ref=head, end_ref=merge_target, validator=validator))
 
 
 @cli.command("sample")
@@ -94,7 +96,8 @@ def validate_message(validator=None, merge_target=None, head=None):
     type=click.Path(exists=True, file_okay=False, resolve_path=True),
 )
 @click.argument("count", type=int, default=10)
-def sample_repo(repo, count):
+@click.pass_context
+def sample_repo(ctx, repo, count):
     """Sample commits in a repo to see if they pass validation.
 
     \b
@@ -102,7 +105,7 @@ def sample_repo(repo, count):
     COUNT is the number of commits to sample (default: 10).
     """
     click.echo(f"Checking the last {count} commits to {click.format_filename(repo)}")
-    return sample(repo, count)
+    ctx.exit(sample(repo, count))
 
 
 if __name__ == "__main__":
