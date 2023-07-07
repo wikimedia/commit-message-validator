@@ -35,7 +35,7 @@ GERRIT_CHECK_FAIL_MESSAGE_SUGGESTION = (
 )
 
 
-def get_message_validator_class():
+def guess_message_validator_class():
     """
     Get appropriate MessageValidator class to check the commit message
     in the repo.
@@ -89,6 +89,20 @@ def get_message_validator_class():
         return GerritMessageValidator
 
 
+def lint_message(lines, cls):
+    """Lint a commit message.
+
+    :param lines: Commit messsage lines
+    :param cls: `MessageValidator` class
+    :return: Sorted list of validation errors
+    """
+    validator = cls()
+    errors = list(validator.validate(lines))
+    errors.sort(key=operator.attrgetter("rule_id"))
+    errors.sort(key=operator.attrgetter("lineno"))
+    return errors
+
+
 def check_message(lines, validator_cls=GerritMessageValidator):
     """
     Check a commit message to see if it has errors.
@@ -104,17 +118,13 @@ def check_message(lines, validator_cls=GerritMessageValidator):
     :return:
         An integer, used for exit code.
     """
-    validator = validator_cls()
-    errors = list(validator.validate(lines))
-    errors.sort(key=operator.attrgetter("rule_id"))
-    errors.sort(key=operator.attrgetter("lineno"))
-
     print("commit-message-validator")
     print(
         "Using {} to check the commit message".format(
             validator_cls.__name__,
         ),
     )
+    errors = lint_message(lines, validator_cls)
     if errors:
         color, reset = ansi_codes()
         print(f"{color}The following errors were found:{reset}")
@@ -134,7 +144,7 @@ def check_message(lines, validator_cls=GerritMessageValidator):
     return 0
 
 
-def validate(commit_id="HEAD"):
+def validate(commit_id="HEAD", validator=None):
     """Validate the current HEAD commit message."""
     # First, we need to check if HEAD is a merge commit
     # We do this by telling if it has multiple parents
@@ -152,8 +162,6 @@ def validate(commit_id="HEAD"):
     if len(parents) > 1:
         # Use the right-most parent
         commit_id = parents[-1]
-    else:
-        commit_id = commit_id
 
     commit = check_output(
         "git",
@@ -168,7 +176,15 @@ def validate(commit_id="HEAD"):
     if len(lines) > 0 and not lines[-1]:
         lines = lines[:-1]
 
-    return check_message(lines, get_message_validator_class())
+    if validator and type(validator) == str:
+        validator = {
+            "GerritMessageValidator": GerritMessageValidator,
+            "GitHubMessageValidator": GitHubMessageValidator,
+            "GitLabMessageValidator": GitLabMessageValidator,
+        }.get(validator)
+    if validator is None:
+        validator = guess_message_validator_class()
+    return check_message(lines, validator)
 
 
 def sample(repo, count):

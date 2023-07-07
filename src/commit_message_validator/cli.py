@@ -17,6 +17,8 @@
 # Commit Message Validator.  If not, see <http://www.gnu.org/licenses/>.
 import click
 import click_aliases
+from click_option_group import MutuallyExclusiveOptionGroup
+from click_option_group import optgroup
 
 from .hooks import install
 from .lint import sample
@@ -45,9 +47,31 @@ def install_hook():
 
 
 @cli.command("validate", aliases=["lint"])
-def validate_message():
+@optgroup("Validation standard", cls=MutuallyExclusiveOptionGroup)
+@optgroup.option(
+    "--gerrit",
+    "validator",
+    help="Use Gerrit standard",
+    flag_value="GerritMessageValidator",
+    default=False,
+)
+@optgroup.option(
+    "--github",
+    "validator",
+    help="Use GitHub standard",
+    flag_value="GitHubMessageValidator",
+    default=False,
+)
+@optgroup.option(
+    "--gitlab",
+    "validator",
+    help="Use GitLab standard",
+    flag_value="GitLabMessageValidator",
+    default=False,
+)
+def validate_message(validator=None):
     """Validate commit message(s)."""
-    return validate()
+    return validate(validator=validator)
 
 
 @cli.command("sample")
