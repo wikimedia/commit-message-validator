@@ -69,9 +69,23 @@ def install_hook():
     flag_value="GitLabMessageValidator",
     default=False,
 )
-def validate_message(validator=None):
+@click.option(
+    "-m",
+    "--merge-target",
+    "merge_target",
+    envvar=["CI_MERGE_REQUEST_DIFF_BASE_SHA", "GITHUB_BASE_REF"],
+    default="HEAD~1",
+    help="Verify all commits since current branch forked from the given target.",
+)
+@click.option(
+    "--head",
+    default="HEAD",
+    envvar=["CI_COMMIT_SHA", "GITHUB_SHA", "GIT_COMMIT"],
+    help="Head of current branch.",
+)
+def validate_message(validator=None, merge_target=None, head=None):
     """Validate commit message(s)."""
-    return validate(validator=validator)
+    return validate(start_ref=head, end_ref=merge_target, validator=validator)
 
 
 @cli.command("sample")

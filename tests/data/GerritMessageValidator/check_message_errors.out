@@ -1,5 +1,3 @@
-commit-message-validator
-Using GerritMessageValidator to check the commit message
 The following errors were found:
 Line 1: Subject must be <=80 characters
 Line 2: Second line should be empty
@@ -28,5 +26,3 @@ Line 19: Extra Change-Id found, first at 18
 Line 20: Depends-On: value must be a single Gerrit change id
 Line 21: Unexpected blank line
 Line 22: Expected footer line to follow format of 'Name: ...'
-Please review <https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines>
-and update your commit message accordingly

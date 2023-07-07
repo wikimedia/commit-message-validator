@@ -1,6 +1,2 @@
-commit-message-validator
-Using GerritMessageValidator to check the commit message
 The following errors were found:
 Line 4: Expected 'Bug:' to come before Change-Id on line 3
-Please review <https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines>
-and update your commit message accordingly

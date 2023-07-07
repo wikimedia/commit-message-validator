@@ -1,7 +1,3 @@
-commit-message-validator
-Using GerritMessageValidator to check the commit message
 The following errors were found:
 Line 1: Expected at least 3 lines
 Line 1: Expected Change-Id
-Please review <https://www.mediawiki.org/wiki/Gerrit/Commit_message_guidelines>
-and update your commit message accordingly

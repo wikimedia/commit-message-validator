@@ -5,6 +5,8 @@ UNRELEASED
 * Convert packaging to hatchling backend (Bryan Davis)
 * Introduce RulesMessageValidator (Bryan Davis)
 * Add GitLabMessageValidator (Bryan Davis)
+* [BREAKING] Add support for checking multiple commits (Bryan Davis)
+  * Pre-existing git hook installs will be broken by this change
 
 1.0.0
 -----

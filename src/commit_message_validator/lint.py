@@ -103,7 +103,7 @@ def lint_message(lines, cls):
     return errors
 
 
-def check_message(lines, validator_cls=GerritMessageValidator):
+def check_message(lines, validator_cls=GerritMessageValidator, lead=""):
     """
     Check a commit message to see if it has errors.
 
@@ -115,60 +115,36 @@ def check_message(lines, validator_cls=GerritMessageValidator):
     :param validator_cls:
         A class that implements `MessageValidator` class,
         default to `GerritMessageValidator`.
+    :param lead: Lead string for each line of output
     :return:
         An integer, used for exit code.
     """
-    print("commit-message-validator")
-    print(
-        "Using {} to check the commit message".format(
-            validator_cls.__name__,
-        ),
-    )
     errors = lint_message(lines, validator_cls)
     if errors:
         color, reset = ansi_codes()
-        print(f"{color}The following errors were found:{reset}")
+        print(f"{lead}{color}The following errors were found:{reset}")
         for err in errors:
-            print(f"{color}Line {err.lineno}: {err.message}{reset}")
-        if validator_cls is GerritMessageValidator:
-            print(
-                "{}{}{}".format(
-                    color,
-                    GERRIT_CHECK_FAIL_MESSAGE_SUGGESTION,
-                    reset,
-                ),
-            )
+            print(f"{lead}{color}Line {err.lineno}: {err.message}{reset}")
         return 1
-    else:
-        print("Commit message is formatted properly! Keep up the good work!")
+
+    print(f"{lead}Commit message is formatted properly! Keep up the good work!")
     return 0
 
 
-def validate(commit_id="HEAD", validator=None):
-    """Validate the current HEAD commit message."""
-    # First, we need to check if HEAD is a merge commit
-    # We do this by telling if it has multiple parents
-    parents = (
-        check_output(
-            "git",
-            "log",
-            "--format=%P",
-            commit_id,
-            "-n1",
-        )
-        .strip()
-        .split(" ")
-    )
+def validate_single_commit(ref, validator, prefix):
+    """Validate a single commit message."""
+    # Check if ref is a merge commit by looking for multiple parents.
+    parents = check_output("git", "log", "--format=%P", ref, "-n1").strip().split(" ")
     if len(parents) > 1:
         # Use the right-most parent
-        commit_id = parents[-1]
+        ref = parents[-1]
 
     commit = check_output(
         "git",
         "log",
         "--format=%B",
         "--no-color",
-        commit_id,
+        ref,
         "-n1",
     )
     lines = commit.splitlines()
@@ -176,6 +152,18 @@ def validate(commit_id="HEAD", validator=None):
     if len(lines) > 0 and not lines[-1]:
         lines = lines[:-1]
 
+    if prefix:
+        print(f"Linting {ref[:7]}: {lines[0]}")
+    return check_message(lines, validator, lead="  ")
+
+
+def validate(start_ref="HEAD", end_ref="HEAD~1", validator=None):
+    """Validate one or more commit messages.
+
+    :param start_ref: Commit to start validation from
+    :param end_ref: Commit to end validation before
+    :param validator: Validator to use
+    """
     if validator and type(validator) == str:
         validator = {
             "GerritMessageValidator": GerritMessageValidator,
@@ -184,7 +172,28 @@ def validate(commit_id="HEAD", validator=None):
         }.get(validator)
     if validator is None:
         validator = guess_message_validator_class()
-    return check_message(lines, validator)
+
+    print("commit-message-validator")
+    print(f"Using {validator.__name__} to check the commit message")
+
+    sha1s = check_output(
+        "git",
+        "log",
+        "--format=%H",
+        "--no-merges",
+        f"{end_ref}..{start_ref}",
+    ).splitlines()
+    multi = len(sha1s) > 1
+
+    exit_status = 0
+    for ref in sha1s:
+        exit_status |= validate_single_commit(ref, validator, multi)
+
+    if exit_status != 0 and validator is GerritMessageValidator:
+        color, reset = ansi_codes()
+        print(f"{color}{GERRIT_CHECK_FAIL_MESSAGE_SUGGESTION}{reset}")
+
+    return exit_status
 
 
 def sample(repo, count):
