@@ -67,3 +67,12 @@ repos:
     hooks:
       - id: check-hooks-apply
       - id: check-useless-excludes
+  - repo: local
+    hooks:
+      - id: commit-message-validator-bootstrap
+        name: Lint commit messages
+        language: python
+        entry: commit-message-validator
+        args: ["lint", "--gitlab", "--merge-target", "origin/main"]
+        pass_filenames: false
+        verbose: true
