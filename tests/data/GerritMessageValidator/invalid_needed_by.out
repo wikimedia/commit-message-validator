@@ -1,2 +1,2 @@
 The following errors were found:
-Line 3: Needed-By: value must be a single Gerrit change id
+- Line 3: Needed-By: value must be a single Gerrit change id

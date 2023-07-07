@@ -1,2 +1,2 @@
 The following errors were found:
-Line 4: Expected 'Bug:' to come before Change-Id on line 3
+- Line 4: Expected 'Bug:' to come before Change-Id on line 3

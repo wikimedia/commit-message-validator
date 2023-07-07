@@ -225,7 +225,7 @@ class ExpectedFooters(FooterLineRule):
                 yield ValidationFailure(
                     self.id,
                     lineno,
-                    f"Unexpected footer '{name}'.\nSupported footers: {supported}",
+                    f"Unexpected footer '{name}'. Supported footers: {supported}",
                 )
             else:
                 # Not a expected footer, so skip additional checks

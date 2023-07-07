@@ -124,7 +124,7 @@ def check_message(lines, validator_cls=GerritMessageValidator, lead=""):
         color, reset = ansi_codes()
         print(f"{lead}{color}The following errors were found:{reset}")
         for err in errors:
-            print(f"{lead}{color}Line {err.lineno}: {err.message}{reset}")
+            print(f"{lead}{color}- Line {err.lineno}: {err.message}{reset}")
         return 1
 
     print(f"{lead}Commit message is formatted properly! Keep up the good work!")
