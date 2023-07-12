@@ -39,6 +39,7 @@ EXPECTED_FOOTERS = [
     "Co-Authored-by",
     "Depends-On",
     "Hosts",  # Wikimedia puppet-compiler
+    "Change-Private",  # Wikimedia puppet-compiler
     "Needed-By",
     "Reported-by",
     "Requested-by",
