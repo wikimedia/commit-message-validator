@@ -7,6 +7,7 @@ UNRELEASED
 * Add GitLabMessageValidator (Bryan Davis)
 * [BREAKING] Add support for checking multiple commits (Bryan Davis)
   * Pre-existing git hook installs will be broken by this change
+* Support "Private-Change:" for Puppet Compiler Compiler (John Bond)
 
 1.0.0
 -----
