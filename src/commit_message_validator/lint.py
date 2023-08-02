@@ -157,11 +157,12 @@ def validate_single_commit(ref, validator, prefix):
     return check_message(lines, validator, lead="  ")
 
 
-def validate(start_ref="HEAD", end_ref="HEAD~1", validator=None):
+def validate(start_ref="HEAD", end_ref="HEAD~1", msg_path=None, validator=None):
     """Validate one or more commit messages.
 
     :param start_ref: Commit to start validation from
     :param end_ref: Commit to end validation before
+    :param msg_path: :class:`pathlib.Path` to file with commit-message to validate
     :param validator: Validator to use
     """
     if validator and type(validator) == str:
@@ -176,18 +177,26 @@ def validate(start_ref="HEAD", end_ref="HEAD~1", validator=None):
     print("commit-message-validator")
     print(f"Using {validator.__name__} to check the commit message")
 
-    sha1s = check_output(
-        "git",
-        "log",
-        "--format=%H",
-        "--no-merges",
-        f"{end_ref}..{start_ref}",
-    ).splitlines()
-    multi = len(sha1s) > 1
-
     exit_status = 0
-    for ref in sha1s:
-        exit_status |= validate_single_commit(ref, validator, multi)
+    if msg_path:
+        # Read from file rather than git repo
+        with msg_path.open(encoding="utf-8") as f:
+            lines = [line.rstrip() for line in f.readlines()]
+            if lines and not lines[-1]:
+                lines = lines[:-1]
+            exit_status = check_message(lines, validator)
+    else:
+        sha1s = check_output(
+            "git",
+            "log",
+            "--format=%H",
+            "--no-merges",
+            f"{end_ref}..{start_ref}",
+        ).splitlines()
+        multi = len(sha1s) > 1
+
+        for ref in sha1s:
+            exit_status |= validate_single_commit(ref, validator, multi)
 
     if exit_status != 0 and validator is GerritMessageValidator:
         color, reset = ansi_codes()

@@ -8,6 +8,7 @@ UNRELEASED
 * [BREAKING] Add support for checking multiple commits (Bryan Davis)
   * Pre-existing git hook installs will be broken by this change
 * Support "Private-Change:" for Puppet Compiler Compiler (John Bond)
+* Pre-commit (<https://pre-commit.com/>) plugin support (Bryan Davis)
 
 1.0.0
 -----

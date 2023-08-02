@@ -1,0 +1,16 @@
+# Tell pre-commit how to use commit-message-validator
+# See https://pre-commit.com/ for more information on pre-commit.
+- id: commit-message-validator
+  name: commit-message-validator
+  description: Valdiate commit messages to Wikimedia standards
+  language: python
+  entry: commit-message-validator
+  args: [validate, --commit-msg-filename]
+  stages: [commit-msg]
+- id: commit-message-validator-ci
+  name: commit-message-validator
+  language: python
+  entry: commit-message-validator
+  always_run: true
+  pass_filenames: false
+  stages: [manual]

@@ -29,6 +29,25 @@ you wish to run it on.
    cd /path/to/git/repository
    ~/.local/bin/commit-message-validator install
 
+Pre-commit
+----------
+
+``commit-message-validator`` can be used as a plugin for the `pre-commit`_ git
+hooks system. Add the following to your ``.pre-commit-config.yaml``:
+
+.. code-block:: yaml
+
+   -  repo: https://gitlab.wikimedia.org/repos/ci-tools/commit-message-validator
+      rev: # Fill in a tag / sha here (like v2.0.0)
+      hooks:
+      -  id: commit-message-validator
+
+Then install the pre-commit hook:
+
+.. code-block:: bash
+
+   pre-commit install --hook-type commit-msg
+
 Contributing
 ------------
 

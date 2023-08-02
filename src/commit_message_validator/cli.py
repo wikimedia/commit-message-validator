@@ -15,6 +15,8 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # Commit Message Validator.  If not, see <http://www.gnu.org/licenses/>.
+import pathlib
+
 import click
 import click_aliases
 from click_option_group import MutuallyExclusiveOptionGroup
@@ -84,10 +86,28 @@ def install_hook(ctx):
     envvar=["CI_COMMIT_SHA", "GITHUB_SHA", "GIT_COMMIT"],
     help="Head of current branch.",
 )
+@click.option(
+    "--commit-msg-filename",
+    type=click.Path(exists=True, dir_okay=False, path_type=pathlib.Path),
+    help="Path to a file containing a commit-msg.",
+)
 @click.pass_context
-def validate_message(ctx, validator=None, merge_target=None, head=None):
+def validate_message(
+    ctx,
+    validator=None,
+    merge_target=None,
+    head=None,
+    commit_msg_filename=None,
+):
     """Validate commit message(s)."""
-    ctx.exit(validate(start_ref=head, end_ref=merge_target, validator=validator))
+    ctx.exit(
+        validate(
+            start_ref=head,
+            end_ref=merge_target,
+            msg_path=commit_msg_filename,
+            validator=validator,
+        ),
+    )
 
 
 @cli.command("sample")
