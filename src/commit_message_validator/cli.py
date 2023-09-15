@@ -16,13 +16,13 @@
 # You should have received a copy of the GNU General Public License along with
 # Commit Message Validator.  If not, see <http://www.gnu.org/licenses/>.
 import pathlib
+import textwrap
 
 import click
 import click_aliases
 from click_option_group import MutuallyExclusiveOptionGroup
 from click_option_group import optgroup
 
-from .hooks import install
 from .lint import sample
 from .lint import validate
 from .version import __version__
@@ -42,11 +42,27 @@ def cli(ctx):
         ctx.invoke(validate)
 
 
-@cli.command("install-hook", aliases=["install"])
+@cli.command("install")
 @click.pass_context
 def install_hook(ctx):
-    """Install commit-message-validator as a git post-commit hook."""
-    ctx.exit(install())
+    """Explain that this sub-command has been removed"""
+    click.echo(
+        click.style(
+            textwrap.fill(
+                "Support for this method of pre-commit hook installation "
+                "has been removed.",
+            ),
+            fg="red",
+        ),
+    )
+    click.echo(
+        textwrap.fill(
+            "See the README for instructions on installing as a "
+            "https://pre-commit.com/ plugin",
+            break_on_hyphens=False,
+        ),
+    )
+    ctx.exit(1)
 
 
 @cli.command("validate", aliases=["lint"])
