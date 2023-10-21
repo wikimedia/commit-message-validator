@@ -1,0 +1,48 @@
+# CI/CD template to run a commit message linter job for a merge request.
+spec:
+  inputs:
+    stage:
+      # Pipeline stage for lint-merge-request job
+      default: test
+    git-fetch-depth:
+      # Maximum number of commits to fetch on source and target branches
+      default: "50"
+---
+lint-merge-request:
+  stage: $[[ inputs.stage ]]
+  only:
+    - merge_requests
+  image: python:$PYTHON_VERSION
+  variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+    PYTHON_VERSION: "3.11"
+    GIT_FETCH_DEPTH: $[[ inputs.git-fetch-depth ]]
+    SOURCE_BRANCH: "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
+    TARGET_BRANCH: "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+  cache:
+    key: pip-$PYTHON_VERSION
+    paths:
+      - .cache/pip
+  before_script:
+    # Unshallow the MR branch and also clone the target branch
+    - >
+      git fetch
+      --update-shallow
+      --update-head-ok
+      --depth=$GIT_FETCH_DEPTH
+      origin
+      $SOURCE_BRANCH:$SOURCE_BRANCH
+      $TARGET_BRANCH:$TARGET_BRANCH
+  script:
+    # FIXME: build into custom image instead of installing for each run
+    - >
+      python3 -m pip
+      install
+      --disable-pip-version-check
+      --root-user-action=ignore
+      git+https://gitlab.wikimedia.org/repos/ci-tools/commit-message-validator@652ce8c3382ff5a3a666fa4fa26c7dbee6a6414c
+    - >
+      python3 -m commit_message_validator
+      validate
+      --gitlab
+      --merge-target $TARGET_BRANCH

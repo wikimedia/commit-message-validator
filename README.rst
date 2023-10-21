@@ -30,6 +30,18 @@ Then install the pre-commit hook:
 
    pre-commit install --hook-type commit-msg
 
+Use with gitlab.wikimedia.org's CI/CD
+-------------------------------------
+
+A GitLab CI/CD template is provided in this repo for linting of commit
+messages in a merge request. Add the following to your ``.gitlab-ci.yml``:
+
+.. code-block:: yaml
+
+   include:
+     - project: repos/ci-tools/commit-message-validator
+       file: /templates/lint-merge-request.yml
+
 Contributing
 ============
 
