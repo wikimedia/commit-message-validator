@@ -40,7 +40,7 @@ lint-merge-request:
       install
       --disable-pip-version-check
       --root-user-action=ignore
-      git+https://gitlab.wikimedia.org/repos/ci-tools/commit-message-validator@652ce8c3382ff5a3a666fa4fa26c7dbee6a6414c
+      commit-message-validator==2.0.0
     - >
       python3 -m commit_message_validator
       validate
