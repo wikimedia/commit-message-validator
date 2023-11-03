@@ -1,5 +1,5 @@
-UNRELEASED
-----------
+2.0.0
+-----
 * Support "Needed-By:" as a backlink to "Depends-On:" (Daniel Kinzler)
 * Alphasort CORRECT_FOOTERS (Sam Reed)
 * Convert packaging to hatchling backend (Bryan Davis)
