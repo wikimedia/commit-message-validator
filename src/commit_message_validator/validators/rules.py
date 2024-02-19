@@ -24,7 +24,7 @@ from .core import MessageValidator
 from .core import ValidationFailure
 
 RE_CHERRYPICK = re.compile(r"^\(cherry picked from commit [0-9a-fA-F]{40}\)$")
-RE_FOOTER = re.compile(
+RE_TRAILER = re.compile(
     r"^(?P<name>[a-z]\S+):(?P<ws>\s*)(?P<value>.*)$",
     re.IGNORECASE,
 )
@@ -33,7 +33,7 @@ RE_FOOTER = re.compile(
 class MessageContext(Enum):
     SUBJECT = 1
     BODY = 2
-    FOOTER = 3
+    TRAILER = 3
 
 
 @dataclasses.dataclass
@@ -136,12 +136,12 @@ class BodyMaxLength(LineLengthRule):
             yield from super().validate(lineno, line, context)
 
 
-class FooterNoBlankLines(LineRule):
-    """No blank lines allowed between footer lines."""
+class TrailerNoBlankLines(LineRule):
+    """No blank lines allowed between trailer lines."""
 
     id = "F1"
-    name = "footer-no-blanks"
-    ctx = MessageContext.FOOTER
+    name = "trailer-no-blanks"
+    ctx = MessageContext.TRAILER
 
     def validate(self, lineno, line, context):
         if context != self.ctx:
@@ -151,18 +151,18 @@ class FooterNoBlankLines(LineRule):
 
 
 @dataclasses.dataclass
-class FooterInBody(LineRule):
+class TrailerInBody(LineRule):
     """No '^Name: value$' lines allowed in body."""
 
     id = "F2"
-    name = "footer-in-body"
+    name = "trailer-in-body"
     ctx = MessageContext.BODY
     expected: typing.Optional[typing.Sequence[str]] = None
 
     def validate(self, lineno, line, context):
         if context != self.ctx:
             return
-        m = RE_FOOTER.match(line)
+        m = RE_TRAILER.match(line)
         if m:
             name = m.group("name")
             normalized = name.lower()
@@ -171,22 +171,22 @@ class FooterInBody(LineRule):
             yield ValidationFailure(
                 self.id,
                 lineno,
-                f"Expected '{name}:' to be in footer",
+                f"Expected '{name}:' to be in trailer",
             )
 
 
-class FooterLineRule(LineRule):
-    """A validation rule for a commit message footer line."""
+class TrailerLineRule(LineRule):
+    """A validation rule for a commit message trailer line."""
 
     def validate(self, lineno, line, context):
-        m = RE_FOOTER.match(line)
+        m = RE_TRAILER.match(line)
         if not m:
             return
         name = m.group("name")
         normalized_name = name.lower()
         ws = m.group("ws")
         value = m.group("value")
-        yield from self.validate_footer(
+        yield from self.validate_trailer(
             lineno,
             name,
             normalized_name,
@@ -197,15 +197,15 @@ class FooterLineRule(LineRule):
 
 
 @dataclasses.dataclass
-class ExpectedFooters(FooterLineRule):
-    """Ensure that footers have expected names and formatting."""
+class ExpectedTrailers(TrailerLineRule):
+    """Ensure that trailers have expected names and formatting."""
 
     id = "F3"
-    name = "expected-footer-format"
+    name = "expected-trailer-format"
     expected: typing.Sequence[str]
     fixup: typing.Optional[typing.Dict[str, str]] = None
 
-    def validate_footer(
+    def validate_trailer(
         self,
         lineno,
         name,
@@ -214,24 +214,24 @@ class ExpectedFooters(FooterLineRule):
         value,  # noqa: U100 Unused argument
         context,
     ):
-        footers = {footer.lower(): footer for footer in self.expected}
+        trailers = {trailer.lower(): trailer for trailer in self.expected}
         if self.fixup and normalized_name in self.fixup:
             # Treat as the correct name for the rest of the checks
             normalized_name = self.fixup[normalized_name]
 
-        if normalized_name not in footers.keys():
-            if context is MessageContext.FOOTER:
-                supported = ", ".join(footers.values())
+        if normalized_name not in trailers.keys():
+            if context is MessageContext.TRAILER:
+                supported = ", ".join(trailers.values())
                 yield ValidationFailure(
                     self.id,
                     lineno,
-                    f"Unexpected footer '{name}'. Supported footers: {supported}",
+                    f"Unexpected trailer '{name}'. Supported trailers: {supported}",
                 )
             else:
-                # Not a expected footer, so skip additional checks
+                # Not a expected trailer, so skip additional checks
                 return
 
-        correct_name = footers.get(normalized_name)
+        correct_name = trailers.get(normalized_name)
         if correct_name and correct_name != name:
             yield ValidationFailure(
                 "F4",
@@ -248,8 +248,8 @@ class ExpectedFooters(FooterLineRule):
 
 
 @dataclasses.dataclass
-class PhabricatorTaskIdExpected(FooterLineRule):
-    """Footer value must be a Phabricator task ID"""
+class PhabricatorTaskIdExpected(TrailerLineRule):
+    """Trailer value must be a Phabricator task ID"""
 
     id = "F6"
     name = "phabricator-task-id-expected"
@@ -258,7 +258,7 @@ class PhabricatorTaskIdExpected(FooterLineRule):
 
     RE_BUGID = re.compile("^T[0-9]+$")
 
-    def validate_footer(
+    def validate_trailer(
         self,
         lineno,
         name,  # noqa: U100 Unused argument
@@ -279,8 +279,8 @@ class PhabricatorTaskIdExpected(FooterLineRule):
 
 
 @dataclasses.dataclass
-class ChangeIdExpected(FooterLineRule):
-    """Footer value must be a Gerrit change id."""
+class ChangeIdExpected(TrailerLineRule):
+    """Trailer value must be a Gerrit change id."""
 
     id = "F7"
     name = "change-id-value-expected"
@@ -289,7 +289,7 @@ class ChangeIdExpected(FooterLineRule):
 
     RE_CHANGEID = re.compile("^I[a-f0-9]{40}$")
 
-    def validate_footer(
+    def validate_trailer(
         self,
         lineno,
         name,
@@ -309,23 +309,23 @@ class ChangeIdExpected(FooterLineRule):
             )
 
 
-class UnexpectedFooterLine(LineRule):
-    """Ensure that all footer lines are either 'name: value' or
+class UnexpectedTrailerLine(LineRule):
+    """Ensure that all trailer lines are either 'name: value' or
     a cherry-pick indicator."""
 
     id = "F8"
-    name = "unexpected-footer-line"
+    name = "unexpected-trailer-line"
 
     def validate(self, lineno, line, context):
-        if context is not MessageContext.FOOTER:
+        if context is not MessageContext.TRAILER:
             return
         if not line:
             return
-        if not RE_FOOTER.match(line) and not RE_CHERRYPICK.match(line):
+        if not RE_TRAILER.match(line) and not RE_CHERRYPICK.match(line):
             yield ValidationFailure(
                 self.id,
                 lineno,
-                "Expected footer line to follow format of 'Name: ...'",
+                "Expected trailer line to follow format of 'Name: ...'",
             )
 
 
@@ -394,7 +394,7 @@ class ChangeIdRequired(CommitRule):
     def validate(self, lines):
         changeid = False
         for lineno, line in enumerate(lines):
-            m = RE_FOOTER.match(line)
+            m = RE_TRAILER.match(line)
             if m:
                 normalized = m.group("name").lower()
                 if normalized == "change-id":
@@ -426,16 +426,16 @@ class RulesMessageValidator(MessageValidator):
         self,
         line_rules=None,
         commit_rules=None,
-        expected_footers=None,
+        expected_trailers=None,
     ):
         """
         :param line_rules: Collection of :class:`LineRule` objects
         :param commit_rules: Collection of :class:`CommitRule` objects
-        :param expected_footers: Collection of normalized footer names
+        :param expected_trailers: Collection of normalized trailer names
         """
         self._line_rules = line_rules or []
         self._commit_rules = commit_rules or []
-        self._expected_footers = expected_footers or []
+        self._expected_trailers = expected_trailers or []
         self._message_context = None
         super().__init__()
 
@@ -463,26 +463,26 @@ class RulesMessageValidator(MessageValidator):
             # First line in the commit message is subject.
             self._message_context = MessageContext.SUBJECT
 
-        elif not self._expected_footers:
+        elif not self._expected_trailers:
             self._message_context = MessageContext.BODY
 
-        elif self._message_context is not MessageContext.FOOTER:
+        elif self._message_context is not MessageContext.TRAILER:
             line = lines[lineno]
-            footer_match = RE_FOOTER.match(line)
+            trailer_match = RE_TRAILER.match(line)
             cherrypick_match = RE_CHERRYPICK.match(line)
 
             if (
                 (
-                    footer_match
-                    and footer_match.group("name").lower() in self._expected_footers
+                    trailer_match
+                    and trailer_match.group("name").lower() in self._expected_trailers
                 )
                 or cherrypick_match
             ) and not lines[lineno - 1]:
-                # If the current line is a footer ("Name: ..." formatted)
+                # If the current line is a trailer ("Name: ..." formatted)
                 # or it's a cherry pick
                 # and the previous line is a blank line.
-                # Mark the current line until the end as FOOTER.
-                self._message_context = MessageContext.FOOTER
+                # Mark the current line until the end as TRAILER.
+                self._message_context = MessageContext.TRAILER
             else:
                 self._message_context = MessageContext.BODY
 

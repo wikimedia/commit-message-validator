@@ -21,17 +21,17 @@ from .rules import ChangeIdRequired
 from .rules import CherryPickLast
 from .rules import CommitMinLines
 from .rules import CommitSecondLineEmpty
-from .rules import ExpectedFooters
-from .rules import FooterInBody
-from .rules import FooterNoBlankLines
+from .rules import ExpectedTrailers
 from .rules import PhabricatorTaskIdExpected
 from .rules import RulesMessageValidator
 from .rules import SubjectMaxLength
 from .rules import SubjectNoBugOrTask
-from .rules import UnexpectedFooterLine
+from .rules import TrailerInBody
+from .rules import TrailerNoBlankLines
+from .rules import UnexpectedTrailerLine
 
 # Header-like lines that we are interested in validating
-EXPECTED_FOOTERS = [
+EXPECTED_TRAILERS = [
     "Acked-by",
     "Bug",
     "Cc",
@@ -49,7 +49,7 @@ EXPECTED_FOOTERS = [
     "Tested-by",
     "Thanks",
 ]
-NORMALIZED_EXPECTED_FOOTERS = [name.lower() for name in EXPECTED_FOOTERS]
+NORMALIZED_EXPECTED_TRAILERS = [name.lower() for name in EXPECTED_TRAILERS]
 
 BEFORE_CHANGE_ID = [
     "bug",
@@ -58,8 +58,8 @@ BEFORE_CHANGE_ID = [
     "task",
 ]
 
-# Invalid footer name to expected name mapping
-BAD_FOOTERS = {
+# Invalid trailer name to expected name mapping
+BAD_TRAILERS = {
     "closes": "bug",
     "fixes": "bug",
     "task": "bug",
@@ -75,14 +75,14 @@ class GerritMessageValidator(RulesMessageValidator):
                 SubjectMaxLength(),
                 SubjectNoBugOrTask(),
                 BodyMaxLength(),
-                FooterInBody(
-                    expected=NORMALIZED_EXPECTED_FOOTERS + list(BAD_FOOTERS.keys()),
+                TrailerInBody(
+                    expected=NORMALIZED_EXPECTED_TRAILERS + list(BAD_TRAILERS.keys()),
                 ),
-                FooterNoBlankLines(),
-                ExpectedFooters(EXPECTED_FOOTERS, fixup=BAD_FOOTERS),
-                PhabricatorTaskIdExpected(["bug"], fixup=BAD_FOOTERS),
+                TrailerNoBlankLines(),
+                ExpectedTrailers(EXPECTED_TRAILERS, fixup=BAD_TRAILERS),
+                PhabricatorTaskIdExpected(["bug"], fixup=BAD_TRAILERS),
                 ChangeIdExpected(["depends-on", "needed-by", "change-id"]),
-                UnexpectedFooterLine(),
+                UnexpectedTrailerLine(),
             ],
             commit_rules=[
                 CommitMinLines(),
@@ -90,7 +90,7 @@ class GerritMessageValidator(RulesMessageValidator):
                 CherryPickLast(),
                 ChangeIdRequired(before=BEFORE_CHANGE_ID),
             ],
-            expected_footers=NORMALIZED_EXPECTED_FOOTERS,
+            expected_trailers=NORMALIZED_EXPECTED_TRAILERS,
         )
 
 
@@ -103,17 +103,17 @@ class GitLabMessageValidator(RulesMessageValidator):
                 SubjectMaxLength(),
                 SubjectNoBugOrTask(),
                 BodyMaxLength(),
-                FooterInBody(
-                    expected=NORMALIZED_EXPECTED_FOOTERS + list(BAD_FOOTERS.keys()),
+                TrailerInBody(
+                    expected=NORMALIZED_EXPECTED_TRAILERS + list(BAD_TRAILERS.keys()),
                 ),
-                FooterNoBlankLines(),
-                ExpectedFooters(EXPECTED_FOOTERS, fixup=BAD_FOOTERS),
-                PhabricatorTaskIdExpected(["bug"], fixup=BAD_FOOTERS),
-                UnexpectedFooterLine(),
+                TrailerNoBlankLines(),
+                ExpectedTrailers(EXPECTED_TRAILERS, fixup=BAD_TRAILERS),
+                PhabricatorTaskIdExpected(["bug"], fixup=BAD_TRAILERS),
+                UnexpectedTrailerLine(),
             ],
             commit_rules=[
                 CommitSecondLineEmpty(),
                 CherryPickLast(),
             ],
-            expected_footers=NORMALIZED_EXPECTED_FOOTERS,
+            expected_trailers=NORMALIZED_EXPECTED_TRAILERS,
         )

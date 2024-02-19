@@ -1,2 +1,2 @@
 The following errors were found:
-- Line 6: Unexpected footer 'Err'. Supported footers: %known_gerrit_footers%
+- Line 6: Unexpected trailer 'Err'. Supported trailers: %known_gerrit_trailers%

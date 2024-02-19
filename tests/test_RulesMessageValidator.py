@@ -28,14 +28,14 @@ def test_get_context():
         "Change-Id: I00d0f7c3b294c3ddc656f9a5447df89c63142203",
     ]
 
-    validator = RulesMessageValidator(expected_footers=["change-id"])
+    validator = RulesMessageValidator(expected_trailers=["change-id"])
 
     expected_result = [
         MessageContext.SUBJECT,
         MessageContext.BODY,
         MessageContext.BODY,
         MessageContext.BODY,
-        MessageContext.FOOTER,
+        MessageContext.TRAILER,
     ]
 
     result = [validator.get_context(lineno, lines) for lineno in range(len(lines))]

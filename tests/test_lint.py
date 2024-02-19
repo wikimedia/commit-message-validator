@@ -26,7 +26,7 @@ from commit_message_validator.lint import check_message
 from commit_message_validator.validators import GerritMessageValidator
 from commit_message_validator.validators import GitHubMessageValidator
 from commit_message_validator.validators import GitLabMessageValidator
-from commit_message_validator.validators.wikimedia import EXPECTED_FOOTERS
+from commit_message_validator.validators.wikimedia import EXPECTED_TRAILERS
 
 MESSAGE_VALIDATOR_MAP = {
     "GerritMessageValidator": GerritMessageValidator,
@@ -54,7 +54,7 @@ def generate_tests():
         os.path.dirname(__file__),
         "data",
     )
-    footers_string = ", ".join(footer for footer in EXPECTED_FOOTERS)
+    trailers_string = ", ".join(trailer for trailer in EXPECTED_TRAILERS)
     for message_validator_name in os.listdir(base_path):
         if message_validator_name not in MESSAGE_VALIDATOR_MAP:
             continue
@@ -84,10 +84,10 @@ def generate_tests():
                                 ),
                             )
                     with open(out_fn) as out:
-                        # FIXME: footers_string is a gross hack now
+                        # FIXME: trailers_string is a gross hack now
                         out_text = out.read().replace(
-                            "%known_gerrit_footers%",
-                            footers_string,
+                            "%known_gerrit_trailers%",
+                            trailers_string,
                         )
                         yield pytest.param(
                             msg.read(),

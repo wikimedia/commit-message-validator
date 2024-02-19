@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to `Semantic Versioning`_.
 
+UNRELEASED
+----------
+* "Footer" references in code and docs changed to "trailer" to match git's own
+  naming for structured commit message data
+  (<https://git-scm.com/docs/git-interpret-trailers>).
+
 `2.0.0`_ - 2023-11-03
 ---------------------
 * Support "Needed-By:" as a backlink to "Depends-On:" (Daniel Kinzler)
