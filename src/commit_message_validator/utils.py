@@ -63,3 +63,32 @@ def ansi_codes():
         )
     except subprocess.CalledProcessError:  # pragma: no cover
         return "", ""
+
+
+def commit_message_cleanup_strip(lines):
+    """Cleanup input in the style of `git commit --cleanup=strip`.
+
+    - Strip leading and trailing empty lines
+    - Strip commentary
+    - Strip trailing whitespace
+    - Collapse consecutive empty lines
+    """
+
+    def pop_matching(predicate, idx=-1):
+        while predicate(lines[idx]):
+            lines.pop(idx)
+
+    pop_matching(lambda x: x == "", idx=0)  # Discard empty leading lines
+    pop_matching(lambda x: x == "")  # Discard empty trailing lines
+    pop_matching(lambda x: x.startswith("#"))  # Discard commentary
+    pop_matching(lambda x: x == "")  # Discard empty trailing lines
+
+    # Strip trailing whitespace and consolidate consecutive empty lines
+    prior_line = None
+    cleaned = []
+    for line in lines:
+        line = line.rstrip()
+        if line != prior_line or prior_line != "":
+            cleaned.append(line)
+        prior_line = line
+    return cleaned

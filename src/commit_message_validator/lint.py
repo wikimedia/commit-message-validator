@@ -22,6 +22,7 @@ import sys
 
 from .utils import ansi_codes
 from .utils import check_output
+from .utils import commit_message_cleanup_strip
 from .validators import GerritMessageValidator
 from .validators import GitHubMessageValidator
 from .validators import GitLabMessageValidator
@@ -181,9 +182,9 @@ def validate(start_ref="HEAD", end_ref="HEAD~1", msg_path=None, validator=None):
     if msg_path:
         # Read from file rather than git repo
         with msg_path.open(encoding="utf-8") as f:
-            lines = [line.rstrip() for line in f.readlines()]
-            if lines and not lines[-1]:
-                lines = lines[:-1]
+            lines = commit_message_cleanup_strip(
+                [line.rstrip() for line in f.readlines()],
+            )
             exit_status = check_message(lines, validator)
     else:
         sha1s = check_output(

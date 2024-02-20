@@ -15,14 +15,17 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # Commit Message Validator.  If not, see <http://www.gnu.org/licenses/>.
+import contextlib
 import io
 import os
+import pathlib
 import re
 import sys
 
 import pytest
 
 from commit_message_validator.lint import check_message
+from commit_message_validator.lint import validate
 from commit_message_validator.validators import GerritMessageValidator
 from commit_message_validator.validators import GitHubMessageValidator
 from commit_message_validator.validators import GitLabMessageValidator
@@ -36,6 +39,18 @@ MESSAGE_VALIDATOR_MAP = {
 # Regular expression for matching ANSI escape sequences
 # https://stackoverflow.com/a/14693789/8171
 RE_ESC = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
+
+
+@contextlib.contextmanager
+def capture_stdout():
+    """Context manager for capturing stdout."""
+    saved_stdout = sys.stdout
+    try:
+        out = io.StringIO()
+        sys.stdout = out
+        yield out
+    finally:
+        sys.stdout = saved_stdout
 
 
 def generate_tests():
@@ -108,10 +123,7 @@ def test_validator(
     expected_exit_code,
     message_validator_name,
 ):
-    saved_stdout = sys.stdout
-    try:
-        out = io.StringIO()
-        sys.stdout = out
+    with capture_stdout() as out:
         exit_code = check_message(
             msg.splitlines(),
             MESSAGE_VALIDATOR_MAP[message_validator_name],
@@ -120,5 +132,17 @@ def test_validator(
         plain_out = RE_ESC.sub("", out.getvalue())
         assert plain_out == expected
         assert exit_code == expected_exit_code
-    finally:
-        sys.stdout = saved_stdout
+
+
+def test_validate_with_msg_path():
+    msg_path = pathlib.Path(__file__).parent / "data" / "T357188"
+    with capture_stdout() as out:
+        exit_code = validate(msg_path=msg_path, validator=GitLabMessageValidator)
+        # Ignore ANSI escapes in output
+        plain_out = RE_ESC.sub("", out.getvalue())
+        assert (
+            plain_out == "commit-message-validator\n"
+            "Using GitLabMessageValidator to check the commit message\n"
+            "Commit message is formatted properly! Keep up the good work!\n"
+        )
+        assert exit_code == 0

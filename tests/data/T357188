@@ -1,0 +1,17 @@
+ci: Use commit-message-validator
+
+Run <https://gitlab.wikimedia.org/repos/ci-tools/commit-message-validator>
+locally and under GitLab CI using pre-commit.
+
+Bug: T357182
+Bug: T357183
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Date:      Fri Feb 9 15:36:56 2024 -0700
+#
+# On branch work/bd808/ci
+# Changes to be committed:
+#⠀⠀new file:   .gitlab-ci.yml
+#⠀⠀new file:   .pre-commit-config.yaml

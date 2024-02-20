@@ -8,6 +8,8 @@ This project adheres to `Semantic Versioning`_.
 
 UNRELEASED
 ----------
+* Prepare ``--commit-msg-filename`` input in the style of
+  ``git commit --cleanup=strip`` (Bryan Davis)
 * "Footer" references in code and docs changed to "trailer" to match git's own
   naming for structured commit message data
   (<https://git-scm.com/docs/git-interpret-trailers>).
