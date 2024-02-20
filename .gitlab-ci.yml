@@ -6,6 +6,7 @@ variables:
   PYTHONUNBUFFERED: "1"
   PYTHONDONTWRITEBYTECODE: "1"
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  PIP_ROOT_USER_ACTION: "ignore"
 
 test:tox:
   stage: test
