@@ -32,10 +32,15 @@ test:tox:
     - python3 -m pip install --upgrade pip wheel tox
     - tox
   artifacts:
+    when: always
+    name: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - dist/
     reports:
       coverage_report:
         coverage_format: cobertura
         path: dist/coverage.xml
+      junit: dist/junit.xml
   coverage: /(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/
 
 package:pypi:
