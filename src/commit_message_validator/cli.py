@@ -39,7 +39,7 @@ def cli(ctx):
     """Validate git commit messages to Wikimedia standards."""
     if ctx.invoked_subcommand is None:
         # Legacy default is to run the validate subcommand
-        ctx.invoke(validate)
+        ctx.exit(ctx.invoke(validate))
 
 
 @cli.command("install")

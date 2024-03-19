@@ -12,7 +12,9 @@ UNRELEASED
   ``git commit --cleanup=strip`` (Bryan Davis)
 * "Footer" references in code and docs changed to "trailer" to match git's own
   naming for structured commit message data
-  (<https://git-scm.com/docs/git-interpret-trailers>).
+  (<https://git-scm.com/docs/git-interpret-trailers>). (Bryan Davis)
+* T360460: Fix exit status regression in legacy ``commit-message-validator``
+  invocation. (Bryan Davis)
 
 `2.0.0`_ - 2023-11-03
 ---------------------
