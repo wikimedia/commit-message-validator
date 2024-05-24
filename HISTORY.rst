@@ -11,10 +11,13 @@ UNRELEASED
 * Prepare ``--commit-msg-filename`` input in the style of
   ``git commit --cleanup=strip`` (Bryan Davis)
 * "Footer" references in code and docs changed to "trailer" to match git's own
-  naming for structured commit message data
+  naming for structured commit message data. (Bryan Davis)
   (<https://git-scm.com/docs/git-interpret-trailers>). (Bryan Davis)
 * T360460: Fix exit status regression in legacy ``commit-message-validator``
   invocation. (Bryan Davis)
+* T351253: Allow two trailing spaces after ``Bug: Tnnnn`` and ``Change-Id:
+  Ixxxx`` trailers for prettier GitLab markdown rendering support. (Bryan
+  Davis)
 
 `2.0.0`_ - 2023-11-03
 ---------------------

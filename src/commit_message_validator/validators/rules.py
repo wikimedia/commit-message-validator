@@ -256,7 +256,7 @@ class PhabricatorTaskIdExpected(TrailerLineRule):
     names: typing.Sequence[str]
     fixup: typing.Optional[typing.Dict[str, str]] = None
 
-    RE_BUGID = re.compile("^T[0-9]+$")
+    RE_BUGID = re.compile(r"^T[0-9]+(  )?$")
 
     def validate_trailer(
         self,
@@ -287,7 +287,7 @@ class ChangeIdExpected(TrailerLineRule):
     names: typing.Sequence[str]
     fixup: typing.Optional[typing.Dict[str, str]] = None
 
-    RE_CHANGEID = re.compile("^I[a-f0-9]{40}$")
+    RE_CHANGEID = re.compile(r"^I[a-f0-9]{40}(  )?$")
 
     def validate_trailer(
         self,
