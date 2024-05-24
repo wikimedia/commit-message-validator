@@ -15,7 +15,7 @@ lint-merge-request:
   image: python:$PYTHON_VERSION
   variables:
     PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-    PYTHON_VERSION: "3.11"
+    PYTHON_VERSION: "3.12"
     GIT_FETCH_DEPTH: $[[ inputs.git-fetch-depth ]]
     SOURCE_BRANCH: "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
     TARGET_BRANCH: "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
@@ -40,7 +40,7 @@ lint-merge-request:
       install
       --disable-pip-version-check
       --root-user-action=ignore
-      commit-message-validator==2.0.0
+      commit-message-validator==2.1.0
     - >
       python3 -m commit_message_validator
       validate
