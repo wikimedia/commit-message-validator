@@ -166,7 +166,7 @@ def validate(start_ref="HEAD", end_ref="HEAD~1", msg_path=None, validator=None):
     :param msg_path: :class:`pathlib.Path` to file with commit-message to validate
     :param validator: Validator to use
     """
-    if validator and type(validator) == str:
+    if validator and type(validator) is str:
         validator = {
             "GerritMessageValidator": GerritMessageValidator,
             "GitHubMessageValidator": GitHubMessageValidator,
