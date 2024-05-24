@@ -6,8 +6,8 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to `Semantic Versioning`_.
 
-UNRELEASED
-----------
+`2.1.0`_ - 2024-05-24
+---------------------
 * Prepare ``--commit-msg-filename`` input in the style of
   ``git commit --cleanup=strip`` (Bryan Davis)
 * "Footer" references in code and docs changed to "trailer" to match git's own
@@ -113,6 +113,7 @@ https://phabricator.wikimedia.org/T109119 for more details.
 * No "Task: ", "Fixes: ", "Closes: " lines
 
 .. _Semantic Versioning: https://semver.org/spec/v2.0.0.html
+.. _2.1.0: https://gitlab.wikimedia.org/repos/ci-tools/commit-message-validator/-/compare/v2.0.0...v2.1.0
 .. _2.0.0: https://gitlab.wikimedia.org/repos/ci-tools/commit-message-validator/-/compare/v1.0.0...v2.0.0
 .. _1.0.0: https://gitlab.wikimedia.org/repos/ci-tools/commit-message-validator/-/compare/v0.7.0...v1.0.0
 .. _0.7.0: https://gitlab.wikimedia.org/repos/ci-tools/commit-message-validator/-/compare/v0.6.0...v0.7.0
