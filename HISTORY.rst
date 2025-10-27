@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to `Semantic Versioning`_.
 
+`2.2.0`_ - 2025-10-27
+---------------------
+* Use ``CI_MERGE_REQUEST_REF_PATH`` as the source ref for compatibility with
+  merge requests from forks. (Dan Duvall)
+
 `2.1.0`_ - 2024-05-24
 ---------------------
 * Prepare ``--commit-msg-filename`` input in the style of
@@ -113,6 +118,7 @@ https://phabricator.wikimedia.org/T109119 for more details.
 * No "Task: ", "Fixes: ", "Closes: " lines
 
 .. _Semantic Versioning: https://semver.org/spec/v2.0.0.html
+.. _2.2.0: https://gitlab.wikimedia.org/repos/ci-tools/commit-message-validator/-/compare/v2.1.0...v2.2.0
 .. _2.1.0: https://gitlab.wikimedia.org/repos/ci-tools/commit-message-validator/-/compare/v2.0.0...v2.1.0
 .. _2.0.0: https://gitlab.wikimedia.org/repos/ci-tools/commit-message-validator/-/compare/v1.0.0...v2.0.0
 .. _1.0.0: https://gitlab.wikimedia.org/repos/ci-tools/commit-message-validator/-/compare/v0.7.0...v1.0.0
